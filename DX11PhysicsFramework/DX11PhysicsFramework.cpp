@@ -451,6 +451,8 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 {
 	HRESULT hr = S_OK;
 
+	_transform = new Transform();
+	
 	D3D11_BUFFER_DESC constantBufferDesc = {};
 	constantBufferDesc.ByteWidth = sizeof(ConstantBuffer);
 	constantBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -513,27 +515,27 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	noSpecMaterial.diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	noSpecMaterial.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 
-	GameObject* gameObject = new GameObject("Floor", planeGeometry, noSpecMaterial);
-	gameObject->SetPosition(0.0f, 0.0f, 0.0f);
-	gameObject->SetScale(15.0f, 15.0f, 15.0f);
-	gameObject->SetRotation(XMConvertToRadians(90.0f), 0.0f, 0.0f);
+	GameObject* gameObject = new GameObject("Floor", planeGeometry, noSpecMaterial, _transform);
+	_transform->SetPosition(0.0f, 0.0f, 0.0f);
+	_transform->SetScale(15.0f, 15.0f, 15.0f);
+	_transform->SetRotation(XMConvertToRadians(90.0f), 0.0f, 0.0f);
 	gameObject->SetTextureRV(_GroundTextureRV);
 
 	_gameObjects.push_back(gameObject);
 
 	for (auto i = 0; i < 4; i++)
 	{
-		gameObject = new GameObject("Cube " + i, cubeGeometry, shinyMaterial);
-		gameObject->SetScale(1.0f, 1.0f, 1.0f);
-		gameObject->SetPosition(-2.0f + (i * 2.5f), 1.0f, 10.0f);
+		gameObject = new GameObject("Cube " + i, cubeGeometry, shinyMaterial, _transform);
+		_transform->SetScale(1.0f, 1.0f, 1.0f);
+		_transform->SetPosition(-2.0f + (i * 2.5f), 1.0f, 10.0f);
 		gameObject->SetTextureRV(_StoneTextureRV);
 
 		_gameObjects.push_back(gameObject);
 	}
 
-	gameObject = new GameObject("Donut", herculesGeometry, shinyMaterial);
-	gameObject->SetScale(1.0f, 1.0f, 1.0f);
-	gameObject->SetPosition(-5.0f, 0.5f, 10.0f);
+	gameObject = new GameObject("Donut", herculesGeometry, shinyMaterial, _transform);
+	_transform->SetScale(1.0f, 1.0f, 1.0f);
+	_transform->SetPosition(-5.0f, 0.5f, 10.0f);
 	gameObject->SetTextureRV(_StoneTextureRV);
 	_gameObjects.push_back(gameObject);
 

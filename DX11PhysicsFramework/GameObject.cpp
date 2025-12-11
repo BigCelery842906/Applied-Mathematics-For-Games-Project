@@ -1,13 +1,12 @@
 #include "GameObject.h"
 
-GameObject::GameObject(string type, Geometry geometry, Material material) : _geometry(geometry), _type(type), _material(material)
+GameObject::GameObject(string type, Geometry geometry, Material material, Transform* transform) : _geometry(geometry), _type(type), _material(material)
 {
 	_parent = nullptr;
-	_position = XMFLOAT3();
-	_rotation = XMFLOAT3();
-	_scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 	_textureRV = nullptr;
+	
+	_localTransform = transform;
 }
 
 GameObject::~GameObject()
@@ -20,6 +19,9 @@ GameObject::~GameObject()
 
 void GameObject::Update(float dt)
 {
+	XMFLOAT3 _scale = _localTransform->GetScale();
+	XMFLOAT3 _rotation = _localTransform->GetRotation();
+	XMFLOAT3 _position = _localTransform->GetPosition();
 	// Calculate world matrix
 	XMMATRIX scale = XMMatrixScaling(_scale.x, _scale.y, _scale.z);
 	XMMATRIX rotation = XMMatrixRotationX(_rotation.x) * XMMatrixRotationY(_rotation.y) * XMMatrixRotationZ(_rotation.z);
@@ -35,9 +37,13 @@ void GameObject::Update(float dt)
 
 void GameObject::Move(XMFLOAT3 direction)
 {
-	_position.x += direction.x;
-	_position.y += direction.y;
-	_position.z += direction.z;
+	XMFLOAT3 pos = _localTransform->GetPosition(); 
+	
+	pos.x += direction.x;
+	pos.y += direction.y;
+	pos.z += direction.z;
+	
+	_localTransform->SetPosition(pos);
 }
 
 void GameObject::Draw(ID3D11DeviceContext * pImmediateContext)
