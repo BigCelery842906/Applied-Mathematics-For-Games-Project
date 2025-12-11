@@ -1,12 +1,12 @@
 #include "GameObject.h"
 
-GameObject::GameObject(string type, Geometry geometry, Material material, Transform* transform) : _geometry(geometry), _type(type), _material(material)
+GameObject::GameObject(string type, Geometry geometry, Material material) : _geometry(geometry), _type(type), _material(material)
 {
 	_parent = nullptr;
 
 	_textureRV = nullptr;
 	
-	_localTransform = transform;
+	_localTransform = new Transform();
 }
 
 GameObject::~GameObject()
