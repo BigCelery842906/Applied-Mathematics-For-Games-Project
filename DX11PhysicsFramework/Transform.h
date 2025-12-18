@@ -1,40 +1,47 @@
 ﻿#pragma once
 
 #include <directxmath.h>
+#include "Vector3.h"
 
 using namespace DirectX;
+class GameObject;
 
 class Transform
 {
 private:
-    XMFLOAT3 _position;
-    XMFLOAT3 _rotation;
-    XMFLOAT3 _scale;
+    Vector3 _position;
+    Vector3 _rotation;
+    Vector3 _scale;
     
+    XMFLOAT4X4 _world;
     
+    Transform* _parentGO = nullptr;
 public:
     
     // Setters and Getters for position/rotation/scale
     //Position
-    void SetPosition(XMFLOAT3 position) { _position = position; }
+    void SetPosition(Vector3 position) { _position = position; }
     void SetPosition(float x, float y, float z) { _position.x = x; _position.y = y; _position.z = z; }
 
-    XMFLOAT3 GetPosition() const { return _position; }
+    Vector3 GetPosition() const { return _position; }
 
     //Scale
-    void SetScale(XMFLOAT3 scale) { _scale = scale; }
+    void SetScale(Vector3 scale) { _scale = scale; }
     void SetScale(float x, float y, float z) { _scale.x = x; _scale.y = y; _scale.z = z; }
 
-    XMFLOAT3 GetScale() const { return _scale; }
+    Vector3 GetScale() const { return _scale; }
 
     //Rotation
-    void SetRotation(XMFLOAT3 rotation) { _rotation = rotation; }
     void SetRotation(float x, float y, float z) { _rotation.x = x; _rotation.y = y; _rotation.z = z; }
+    void SetRotation(Vector3 rotation) { _rotation = rotation; }
+    
+    Vector3 GetRotation() const { return _rotation; }
 
-    XMFLOAT3 GetRotation() const { return _rotation; }
+    void SetWorldMatrix(XMMATRIX world) { XMStoreFloat4x4(&_world, world); }
+    XMMATRIX GetWorldMatrix() const { return XMLoadFloat4x4(&_world); }
 
-
-    Transform();
+    Transform(GameObject* parentGO);
     ~Transform();
-    void Update();
+    void Update(float dt);
+    void Move(XMFLOAT3 direction);
 };

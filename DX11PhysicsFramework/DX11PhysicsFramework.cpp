@@ -513,28 +513,33 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	noSpecMaterial.diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	noSpecMaterial.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 
-	GameObject* gameObject = new GameObject("Floor", planeGeometry, noSpecMaterial);
+	Appearance* FloorAppearance = new Appearance(planeGeometry, noSpecMaterial);
+	
+	GameObject* gameObject = new GameObject("Floor", FloorAppearance);
 	gameObject->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 	gameObject->GetTransform()->SetScale(15.0f, 15.0f, 15.0f);
-	gameObject->GetTransform()->SetRotation(XMConvertToRadians(90.0f), 0.0f, 0.0f);
-	gameObject->SetTextureRV(_GroundTextureRV);
+	gameObject->GetTransform()->SetRotation(XMConvertToRadians(90.0f),0,0);
+	gameObject->GetAppearance()->SetTextureRV(_GroundTextureRV);
 
 	_gameObjects.push_back(gameObject);
 
+	Appearance* CubeAppearance = new Appearance(cubeGeometry, shinyMaterial);
 	for (auto i = 0; i < 4; i++)
 	{
-		gameObject = new GameObject("Cube " + i, cubeGeometry, shinyMaterial);
+		gameObject = new GameObject("Cube " + i, CubeAppearance);
 		gameObject->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
 		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 1.0f, 10.0f);
-		gameObject->SetTextureRV(_StoneTextureRV);
+		gameObject->GetTransform()->SetRotation(XMConvertToRadians(90.0f),0,0);
+		gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 
 		_gameObjects.push_back(gameObject);
 	}
 
-	gameObject = new GameObject("Donut", herculesGeometry, shinyMaterial);
+	Appearance* donutAppearance = new Appearance(herculesGeometry, shinyMaterial);
+	gameObject = new GameObject("Donut", donutAppearance);
 	gameObject->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
 	gameObject->GetTransform()->SetPosition(-5.0f, 0.5f, 10.0f);
-	gameObject->SetTextureRV(_StoneTextureRV);
+	gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 	_gameObjects.push_back(gameObject);
 
 	return S_OK;
@@ -596,19 +601,19 @@ void DX11PhysicsFramework::Update()
 	// Move gameobjects
 	if (GetAsyncKeyState('1'))
 	{
-		_gameObjects[1]->Move(XMFLOAT3(0, 0, -0.02f));
+		_gameObjects[1]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
 	}
 	if (GetAsyncKeyState('2'))
 	{
-		_gameObjects[1]->Move(XMFLOAT3(0, 0, 0.02f));
+		_gameObjects[1]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
 	}
 	if (GetAsyncKeyState('3'))
 	{
-		_gameObjects[2]->Move(XMFLOAT3(0, 0, -0.02f));
+		_gameObjects[2]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
 	}
 	if (GetAsyncKeyState('4'))
 	{
-		_gameObjects[2]->Move(XMFLOAT3(0, 0, 0.02f));
+		_gameObjects[2]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
 	}
 	// Update camera
 	float angleAroundZ = XMConvertToRadians(_cameraOrbitAngleXZ);
@@ -626,7 +631,7 @@ void DX11PhysicsFramework::Update()
 	// Update objects
 	for (auto gameObject : _gameObjects)
 	{
-		gameObject->Update(deltaTime);
+		gameObject->GetTransform()->Update(deltaTime);
 	}
 }
 
@@ -666,7 +671,7 @@ void DX11PhysicsFramework::Draw()
 	for (auto gameObject : _gameObjects)
 	{
 		// Get render material
-		Material material = gameObject->GetMaterial();
+		Material material = gameObject->GetAppearance()->GetMaterial();
 
 		// Copy material to shader
 		_cbData.surface.AmbientMtrl = material.ambient;
@@ -674,12 +679,12 @@ void DX11PhysicsFramework::Draw()
 		_cbData.surface.SpecularMtrl = material.specular;
 
 		// Set world matrix
-		_cbData.World = XMMatrixTranspose(gameObject->GetWorldMatrix());
+		_cbData.World = XMMatrixTranspose(gameObject->GetTransform()->GetWorldMatrix());
 
 		// Set texture
-		if (gameObject->HasTexture())
+		if (gameObject->GetAppearance()->HasTexture())
 		{
-			_immediateContext->PSSetShaderResources(0, 1, gameObject->GetTextureRV());
+			_immediateContext->PSSetShaderResources(0, 1, gameObject->GetAppearance()->GetTextureRV());
 			_cbData.HasTexture = 1.0f;
 		}
 		else
@@ -694,7 +699,7 @@ void DX11PhysicsFramework::Draw()
 		_immediateContext->Unmap(_constantBuffer, 0);
 
 		// Draw object
-		gameObject->Draw(_immediateContext);
+		gameObject->GetAppearance()->Draw(_immediateContext);
 	}
 
     //

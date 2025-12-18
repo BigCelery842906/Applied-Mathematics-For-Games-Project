@@ -1,19 +1,39 @@
 ﻿#include "Transform.h"
+#include "GameObject.h"
 
-Transform::Transform()
+Transform::Transform(GameObject* parentGO)
 {
-    _position = XMFLOAT3();
-    _rotation = XMFLOAT3();
-    _scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+    _parentGO = parentGO->GetTransform();
+    _position = Vector3(0.0f, 0.0f, 0.0f);
+    _rotation =  Vector3(0.0f, 0.0f, 0.0f);
+    _scale = Vector3(1.0f, 1.0f, 1.0f);
 }
 
 Transform::~Transform()
 {
-    
+    _parentGO = nullptr;
 }
 
-void Transform::Update()
+void Transform::Move(XMFLOAT3 direction)
+{	
+    _position.x += direction.x;
+    _position.y += direction.y;
+    _position.z += direction.z;
+}
+
+void Transform::Update(float dt)
 {
-
+    // Calculate world matrix
+    XMMATRIX scale = XMMatrixScaling(_scale.x, _scale.y, _scale.z);
+    XMMATRIX rotation = XMMatrixRotationX(_rotation.x) * XMMatrixRotationY(_rotation.y) * XMMatrixRotationZ(_rotation.z);
+    XMMATRIX translation = XMMatrixTranslation(_position.x, _position.y, _position.z);
     
+    XMStoreFloat4x4(&_world, scale * rotation * translation);
+
+    if (_parentGO != nullptr)
+    {
+        XMStoreFloat4x4(&_world, this->GetWorldMatrix() * _parentGO->GetWorldMatrix());
+    }
 }
+
+
