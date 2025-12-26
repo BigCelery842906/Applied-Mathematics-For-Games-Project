@@ -615,6 +615,43 @@ void DX11PhysicsFramework::Update()
 	{
 		_gameObjects[2]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
 	}
+	
+#pragma region CycleCubeMovement
+	// //Move Gameobjects (with cycle)
+	//
+	// int numOfGameObjects = _gameObjects.size();
+	//
+	// if (GetAsyncKeyState('M') & 0x0001)
+	// {
+	// 	selectedGameObject++;
+	// 	selectedGameObject %= numOfGameObjects;
+	// }
+	// if (GetAsyncKeyState('N') & 0x0001)
+	// {
+	// 	selectedGameObject += (numOfGameObjects - 1); //Make sure it won't get remainder of minus number
+	// 	selectedGameObject %= numOfGameObjects; 
+	// }
+	//
+	// // Move gameobjects
+	// if (GetAsyncKeyState('W'))
+	// {
+	// 	_gameObjects[selectedGameObject]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+	// }
+	// if (GetAsyncKeyState('S'))
+	// {
+	// 	_gameObjects[selectedGameObject]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
+	// }
+	// if (GetAsyncKeyState('A'))
+	// {
+	// 	_gameObjects[selectedGameObject]->GetTransform()->Move(XMFLOAT3(-0.02f, 0, 0));
+	// }
+	// if (GetAsyncKeyState('D'))
+	// {
+	// 	_gameObjects[selectedGameObject]->GetTransform()->Move(XMFLOAT3(0.02f, 0, 0));
+	// }
+#pragma endregion
+	
+	
 	// Update camera
 	float angleAroundZ = XMConvertToRadians(_cameraOrbitAngleXZ);
 
