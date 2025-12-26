@@ -605,15 +605,31 @@ void DX11PhysicsFramework::Update()
 	}
 	if (GetAsyncKeyState('2'))
 	{
-		_gameObjects[1]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+		_gameObjects[2]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
 	}
 	if (GetAsyncKeyState('3'))
 	{
-		_gameObjects[2]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
+		_gameObjects[3]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
 	}
 	if (GetAsyncKeyState('4'))
 	{
+		_gameObjects[4]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
+	}
+	if (GetAsyncKeyState('Q'))
+	{
+		_gameObjects[1]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+	}
+	if (GetAsyncKeyState('W'))
+	{
 		_gameObjects[2]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+	}
+	if (GetAsyncKeyState('E'))
+	{
+		_gameObjects[3]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+	}
+	if (GetAsyncKeyState('R'))
+	{
+		_gameObjects[4]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
 	}
 	
 #pragma region CycleCubeMovement
