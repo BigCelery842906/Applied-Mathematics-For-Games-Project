@@ -371,6 +371,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Appearance.cpp" />
+    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="DX11PhysicsFramework.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
@@ -452,7 +453,8 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;PROFILE;_WINDOWS;D3DXFX_LARGEADDRESS_HANDLE;_UNICODE;UNICODE;</PreprocessorDefinitions>
       <OpenMPSupport>false</OpenMPSupport>
       <AdditionalIncludeDirectories>DXUT\Core;DXUT\Optional;</AdditionalIncludeDirectories>
-      <AdditionalOptions> </AdditionalOptions>
+      <AdditionalOptions>
+      </AdditionalOptions>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
   </ItemGroup>

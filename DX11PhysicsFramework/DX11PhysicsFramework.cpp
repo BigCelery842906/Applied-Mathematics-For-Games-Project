@@ -684,7 +684,9 @@ void DX11PhysicsFramework::Update()
 	// Update objects
 	for (auto gameObject : _gameObjects)
 	{
+		gameObject->Update();
 		gameObject->GetTransform()->Update(deltaTime);
+		
 	}
 }
 
