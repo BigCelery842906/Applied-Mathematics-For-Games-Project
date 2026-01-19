@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "GameObject.h"
+#include "Timer.h"
 
 using namespace DirectX;
 
@@ -74,6 +75,9 @@ private:
 	ID3D11RasterizerState* _CWcullMode; //Clockwise
 	
 	int selectedGameObject = 1;
+	
+	Timer* timer;
+	float accumulator = 0.0f;
 
 private:
 	HRESULT CreateWindowHandle(HINSTANCE hInstance, int nCmdShow);

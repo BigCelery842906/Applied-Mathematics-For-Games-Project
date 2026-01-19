@@ -1,5 +1,5 @@
 #include "DX11PhysicsFramework.h"
-
+#define FPS60 1.0f/60.0f
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
@@ -542,6 +542,8 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 	_gameObjects.push_back(gameObject);
 
+	timer = new Timer();
+	
 	return S_OK;
 }
 
@@ -588,6 +590,8 @@ DX11PhysicsFramework::~DX11PhysicsFramework()
 
 void DX11PhysicsFramework::Update()
 {
+	timer->Tick();
+	
 	//Static initializes this value only once    
 	static ULONGLONG frameStart = GetTickCount64();
 
@@ -687,6 +691,22 @@ void DX11PhysicsFramework::Update()
 		gameObject->Update();
 		gameObject->GetTransform()->Update(deltaTime);
 		
+	}
+	
+	//Timestep
+
+	float newDeltaTime = timer->GetDeltaTime();
+	
+	accumulator += timer->GetDeltaTime();
+	// OutputDebugStringA(std::to_string(accumulator).c_str());
+	while (accumulator <= FPS60)
+	{
+		std::string var = "While loop accumulator: ";;
+		var += std::to_string(accumulator);
+		var += "\n";
+		OutputDebugStringA(var.c_str());
+		
+		accumulator = 0.0f;
 	}
 }
 
