@@ -698,12 +698,12 @@ void DX11PhysicsFramework::Update()
 	float newDeltaTime = timer->GetDeltaTime();
 	
 	accumulator += timer->GetDeltaTime();
-	// OutputDebugStringA(std::to_string(accumulator).c_str());
-	while (accumulator <= FPS60)
+	//OutputDebugStringA(std::to_string(accumulator).c_str());
+	while (accumulator >= FPS60)
 	{
-		std::string var = "While loop accumulator: ";;
-		var += std::to_string(accumulator);
-		var += "\n";
+		std::string acc = std::to_string(accumulator) + "\n ";
+		std::string var = "While loop accumulator: " + acc + "\n ";
+
 		OutputDebugStringA(var.c_str());
 		
 		accumulator = 0.0f;
