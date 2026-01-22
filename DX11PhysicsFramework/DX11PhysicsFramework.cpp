@@ -706,7 +706,7 @@ void DX11PhysicsFramework::Update()
 
 		OutputDebugStringA(var.c_str());
 		
-		accumulator = 0.0f;
+		accumulator -= FPS60;
 	}
 }
 

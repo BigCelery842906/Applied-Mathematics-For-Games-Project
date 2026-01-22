@@ -10,6 +10,7 @@ class Timer
 private:
     steady_clock::time_point lastFrame;
     steady_clock::duration runTimeLength;
+    float deltaSeconds;
 public:
     Timer();
     
