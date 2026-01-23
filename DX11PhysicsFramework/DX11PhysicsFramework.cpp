@@ -610,38 +610,67 @@ void DX11PhysicsFramework::Update()
 	simpleCount += deltaTime;
 
 	// Move gameobjects
-	if (GetAsyncKeyState('1'))
-	{
-		_gameObjects[1]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
+	// if (GetAsyncKeyState('1'))
+	// {
+	// 	_gameObjects[1]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
+	// }
+	// if (GetAsyncKeyState('2'))
+	// {
+	// 	_gameObjects[2]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
+	// }
+	// if (GetAsyncKeyState('3'))
+	// {
+	// 	_gameObjects[3]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
+	// }
+	// if (GetAsyncKeyState('4'))
+	// {
+	// 	_gameObjects[4]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
+	// }
+	// if (GetAsyncKeyState('Q'))
+	// {
+	// 	_gameObjects[1]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+	// }
+	// if (GetAsyncKeyState('W'))
+	// {
+	// 	_gameObjects[2]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+	// }
+	// if (GetAsyncKeyState('E'))
+	// {
+	// 	_gameObjects[3]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+	// }
+	// if (GetAsyncKeyState('R'))
+	// {
+	// 	_gameObjects[4]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+	// }
+	
+	if (GetAsyncKeyState('Q') & 0x0001)
+	{ //Currently needs to be 4 because of cubes
+		currentSelectedGameobject += 4;
+		currentSelectedGameobject--;
+		currentSelectedGameobject %= 4;
 	}
-	if (GetAsyncKeyState('2'))
+	if (GetAsyncKeyState('E') & 0x0001)
 	{
-		_gameObjects[2]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
-	}
-	if (GetAsyncKeyState('3'))
-	{
-		_gameObjects[3]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
-	}
-	if (GetAsyncKeyState('4'))
-	{
-		_gameObjects[4]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
-	}
-	if (GetAsyncKeyState('Q'))
-	{
-		_gameObjects[1]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+		currentSelectedGameobject++;
+		currentSelectedGameobject %= 4;
 	}
 	if (GetAsyncKeyState('W'))
 	{
-		_gameObjects[2]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+		_gameObjects[currentSelectedGameobject+1]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
 	}
-	if (GetAsyncKeyState('E'))
+	if (GetAsyncKeyState('S'))
 	{
-		_gameObjects[3]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+		_gameObjects[currentSelectedGameobject+1]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
 	}
-	if (GetAsyncKeyState('R'))
+	if (GetAsyncKeyState('A'))
 	{
-		_gameObjects[4]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+		_gameObjects[currentSelectedGameobject+1]->GetTransform()->Move(XMFLOAT3(-0.02f, 0, 0));
 	}
+	if (GetAsyncKeyState('D'))
+	{
+		_gameObjects[currentSelectedGameobject+1]->GetTransform()->Move(XMFLOAT3(0.02, 0, 0));
+	}
+	
 	
 	
 	

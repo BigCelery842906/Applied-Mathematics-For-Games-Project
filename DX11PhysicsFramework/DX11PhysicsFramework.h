@@ -79,6 +79,8 @@ private:
 	
 	Timer* timer;
 	float accumulator = 0.0f;
+	
+	int currentSelectedGameobject = 0;
 
 private:
 	HRESULT CreateWindowHandle(HINSTANCE hInstance, int nCmdShow);
