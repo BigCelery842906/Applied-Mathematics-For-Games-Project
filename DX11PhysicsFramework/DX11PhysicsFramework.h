@@ -6,15 +6,16 @@
 #include <directxmath.h>
 #include <directxcolors.h>
 #include "DDSTextureLoader.h"
+#include <vector>
 #include "resource.h"
 #include "Camera.h"
 #include "Structures.h"
 #include "OBJLoader.h"
-
-#include <vector>
-
+#include "Debug.h"
 #include "GameObject.h"
 #include "Timer.h"
+
+
 
 using namespace DirectX;
 

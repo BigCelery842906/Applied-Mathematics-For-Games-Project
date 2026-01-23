@@ -1,4 +1,6 @@
 #include "DX11PhysicsFramework.h"
+
+
 #define FPS60 1.0f/60.0f
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -636,6 +638,8 @@ void DX11PhysicsFramework::Update()
 		_gameObjects[4]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
 	}
 	
+	_gameObjects[1]->GetPhysicsModel()->SetVelocity(Vector3(0,1,0));
+	
 #pragma region CycleCubeMovement
 	// //Move Gameobjects (with cycle)
 	//
@@ -688,8 +692,7 @@ void DX11PhysicsFramework::Update()
 	// Update objects
 	for (auto gameObject : _gameObjects)
 	{
-		gameObject->Update();
-		gameObject->GetTransform()->Update(deltaTime);
+		gameObject->Update(deltaTime);
 		
 	}
 	
@@ -708,6 +711,8 @@ void DX11PhysicsFramework::Update()
 		
 		accumulator -= FPS60;
 	}
+	
+	DebugPrintF("deltaTime is %f \n the number is %i \n", accumulator, 2);
 }
 
 void DX11PhysicsFramework::Draw()
