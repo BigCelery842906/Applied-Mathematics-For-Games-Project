@@ -544,6 +544,11 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 	_gameObjects.push_back(gameObject);
 
+	_gameObjects[1]->GetPhysicsModel()->SetVelocity(Vector3(0,1,0));
+	_gameObjects[1]->GetPhysicsModel()->SetAcceleration(Vector3(0,1,0));
+	
+	_gameObjects[2]->GetPhysicsModel()->SetVelocity(Vector3(0,1,0));
+	
 	timer = new Timer();
 	
 	return S_OK;
@@ -638,7 +643,7 @@ void DX11PhysicsFramework::Update()
 		_gameObjects[4]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
 	}
 	
-	_gameObjects[1]->GetPhysicsModel()->SetVelocity(Vector3(0,1,0));
+	
 	
 #pragma region CycleCubeMovement
 	// //Move Gameobjects (with cycle)
