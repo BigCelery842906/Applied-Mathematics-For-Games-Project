@@ -543,10 +543,9 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	gameObject->GetTransform()->SetPosition(-5.0f, 0.5f, 10.0f);
 	gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 	_gameObjects.push_back(gameObject);
-
-	// _gameObjects[1]->GetPhysicsModel()->SetVelocity(Vector3(0,1,0));
-	_gameObjects[1]->GetPhysicsModel()->SetAcceleration(Vector3(0,1,0));
 	
+	
+	_gameObjects[1]->GetPhysicsModel()->SetAcceleration(Vector3(0,1,0));
 	_gameObjects[2]->GetPhysicsModel()->SetVelocity(Vector3(0,1,0));
 	
 	timer = new Timer();
@@ -608,40 +607,6 @@ void DX11PhysicsFramework::Update()
 
 	static float simpleCount = 0.0f;
 	simpleCount += deltaTime;
-
-	// Move gameobjects
-	// if (GetAsyncKeyState('1'))
-	// {
-	// 	_gameObjects[1]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
-	// }
-	// if (GetAsyncKeyState('2'))
-	// {
-	// 	_gameObjects[2]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
-	// }
-	// if (GetAsyncKeyState('3'))
-	// {
-	// 	_gameObjects[3]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
-	// }
-	// if (GetAsyncKeyState('4'))
-	// {
-	// 	_gameObjects[4]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
-	// }
-	// if (GetAsyncKeyState('Q'))
-	// {
-	// 	_gameObjects[1]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
-	// }
-	// if (GetAsyncKeyState('W'))
-	// {
-	// 	_gameObjects[2]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
-	// }
-	// if (GetAsyncKeyState('E'))
-	// {
-	// 	_gameObjects[3]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
-	// }
-	// if (GetAsyncKeyState('R'))
-	// {
-	// 	_gameObjects[4]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
-	// }
 	
 	if (GetAsyncKeyState('Q') & 0x0001)
 	{ //Currently needs to be 4 because of cubes
@@ -676,43 +641,6 @@ void DX11PhysicsFramework::Update()
 	}
 	
 	// TODO: ADD INCREASE/DECREASE FOR ACCELERATION
-	
-	
-	
-#pragma region CycleCubeMovement
-	// //Move Gameobjects (with cycle)
-	//
-	// int numOfGameObjects = _gameObjects.size();
-	//
-	// if (GetAsyncKeyState('M') & 0x0001)
-	// {
-	// 	selectedGameObject++;
-	// 	selectedGameObject %= numOfGameObjects;
-	// }
-	// if (GetAsyncKeyState('N') & 0x0001)
-	// {
-	// 	selectedGameObject += (numOfGameObjects - 1); //Make sure it won't get remainder of minus number
-	// 	selectedGameObject %= numOfGameObjects; 
-	// }
-	//
-	// // Move gameobjects
-	// if (GetAsyncKeyState('W'))
-	// {
-	// 	_gameObjects[selectedGameObject]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
-	// }
-	// if (GetAsyncKeyState('S'))
-	// {
-	// 	_gameObjects[selectedGameObject]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
-	// }
-	// if (GetAsyncKeyState('A'))
-	// {
-	// 	_gameObjects[selectedGameObject]->GetTransform()->Move(XMFLOAT3(-0.02f, 0, 0));
-	// }
-	// if (GetAsyncKeyState('D'))
-	// {
-	// 	_gameObjects[selectedGameObject]->GetTransform()->Move(XMFLOAT3(0.02f, 0, 0));
-	// }
-#pragma endregion
 	
 	
 	// Update camera
