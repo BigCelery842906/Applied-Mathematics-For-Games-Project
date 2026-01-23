@@ -6,6 +6,7 @@
 
 #include "Transform.h"
 #include "Appearance.h"
+#include "PhysicsModel.h"
 #include "Structures.h"
 using namespace DirectX;
 using namespace std;
@@ -22,16 +23,18 @@ public:
 
 	Transform* GetTransform() { return _localTransform; }
 	Appearance* GetAppearance() { return _appearance; }
+	PhysicsModel* GetPhysicsModel() { return _physicsModel; }
 	
 	void SetParent(GameObject * parent) { _parent = parent; }
 	GameObject* GetParent() { return _parent; }
 	
-	void Update();
+	void Update(float deltaTime);
 
 private:
 	GameObject* _parent = nullptr;
 	Transform* _localTransform = nullptr;
 	Appearance* _appearance = nullptr;
+	PhysicsModel* _physicsModel = nullptr;
 	
 	string _type;
 		
