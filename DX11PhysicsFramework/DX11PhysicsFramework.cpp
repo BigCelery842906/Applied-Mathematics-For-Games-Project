@@ -544,7 +544,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 	_gameObjects.push_back(gameObject);
 
-	_gameObjects[1]->GetPhysicsModel()->SetVelocity(Vector3(0,1,0));
+	// _gameObjects[1]->GetPhysicsModel()->SetVelocity(Vector3(0,1,0));
 	_gameObjects[1]->GetPhysicsModel()->SetAcceleration(Vector3(0,1,0));
 	
 	_gameObjects[2]->GetPhysicsModel()->SetVelocity(Vector3(0,1,0));
@@ -670,7 +670,12 @@ void DX11PhysicsFramework::Update()
 	{
 		_gameObjects[currentSelectedGameobject+1]->GetTransform()->Move(XMFLOAT3(0.02, 0, 0));
 	}
+	if (GetAsyncKeyState('Z') & 0x0001)
+	{
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->ToggleAccelerating();
+	}
 	
+	// TODO: ADD INCREASE/DECREASE FOR ACCELERATION
 	
 	
 	

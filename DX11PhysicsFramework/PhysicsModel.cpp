@@ -8,7 +8,10 @@ PhysicsModel::PhysicsModel(Transform* transform)
 void PhysicsModel::Update(float deltaTime)
 {
     Vector3 position = _transform->GetPosition();
-    _velocity += _acceleration * deltaTime;
+    if (isAccelerating)
+    {
+        _velocity += _acceleration * deltaTime;
+    }
     position += _velocity * deltaTime;
     _transform->SetPosition(position);
 }

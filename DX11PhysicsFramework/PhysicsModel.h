@@ -9,6 +9,8 @@ protected:
     Vector3 _velocity;
     Vector3 _acceleration;
     
+    bool isAccelerating = false;
+    
 public:
     PhysicsModel(Transform* transform);
     void Update(float deltaTime);
@@ -18,4 +20,7 @@ public:
     
     Vector3 GetAcceleration() { return _acceleration; }
     void SetAcceleration(Vector3 acceleration) { _acceleration = acceleration; }
+    
+    bool IsAccelerating() { return isAccelerating; }
+    void ToggleAccelerating() { isAccelerating = !isAccelerating; }
 };
