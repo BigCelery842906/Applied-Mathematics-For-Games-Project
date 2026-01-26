@@ -533,6 +533,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 1.0f, 10.0f);
 		gameObject->GetTransform()->SetRotation(XMConvertToRadians(90.0f),0,0);
 		gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
+		gameObject->GetPhysicsModel()->simulateGravity(true);
 
 		_gameObjects.push_back(gameObject);
 	}
@@ -545,8 +546,8 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	_gameObjects.push_back(gameObject);
 	
 	
-	_gameObjects[1]->GetPhysicsModel()->SetAcceleration(Vector3(0,1,0));
-	_gameObjects[2]->GetPhysicsModel()->SetVelocity(Vector3(0,1,0));
+	// _gameObjects[1]->GetPhysicsModel()->SetAcceleration(Vector3(0,1,0));
+	// _gameObjects[2]->GetPhysicsModel()->SetVelocity(Vector3(0,1,0));
 	
 	timer = new Timer();
 	
@@ -621,24 +622,25 @@ void DX11PhysicsFramework::Update()
 	}
 	if (GetAsyncKeyState('W'))
 	{
-		_gameObjects[currentSelectedGameobject+1]->GetTransform()->Move(XMFLOAT3(0, 0, 0.02f));
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 0, 5));
 	}
 	if (GetAsyncKeyState('S'))
 	{
-		_gameObjects[currentSelectedGameobject+1]->GetTransform()->Move(XMFLOAT3(0, 0, -0.02f));
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 0, -5));
 	}
 	if (GetAsyncKeyState('A'))
 	{
-		_gameObjects[currentSelectedGameobject+1]->GetTransform()->Move(XMFLOAT3(-0.02f, 0, 0));
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(-5, 0, 0));
 	}
 	if (GetAsyncKeyState('D'))
 	{
-		_gameObjects[currentSelectedGameobject+1]->GetTransform()->Move(XMFLOAT3(0.02, 0, 0));
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(5, 0, 0));
 	}
-	if (GetAsyncKeyState('Z') & 0x0001)
+	if (GetAsyncKeyState('Z'))
 	{
-		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->ToggleAccelerating();
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 50, 0));;
 	}
+	
 	
 	// TODO: ADD INCREASE/DECREASE FOR ACCELERATION
 	

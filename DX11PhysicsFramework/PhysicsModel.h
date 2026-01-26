@@ -9,18 +9,33 @@ protected:
     Vector3 _velocity;
     Vector3 _acceleration;
     
-    bool isAccelerating = false;
+    Vector3 _constantVelocity;
+    Vector3 _constantAcceleration;
+    
+    Vector3 _netForce;
+    float _mass = 1.0f;
+    
+    bool _simulateGravity = false;
+    
+    float _density = 1.0f;
+    float _dragCoefficient = 0.9f;
+    float _crossSectionalArea = 1.0f;
     
 public:
-    PhysicsModel(Transform* transform);
-    void Update(float deltaTime);
+    PhysicsModel(Transform* transform, float mass = 1.0f);
+    virtual void Update(float deltaTime);
     
-    Vector3 GetVelocity() { return _velocity; }
-    void SetVelocity(Vector3 velocity) { _velocity = velocity; }
+    // Vector3 GetVelocity() { return _velocity; }
+    // void SetVelocity(Vector3 velocity) { _velocity = velocity; }
     
-    Vector3 GetAcceleration() { return _acceleration; }
-    void SetAcceleration(Vector3 acceleration) { _acceleration = acceleration; }
+    // bool IsConstantlyAccelerating() { return isConstantAccelerate; }
+    // void ToggleConstantAcceleration() { isConstantAccelerate = !isConstantAccelerate; }
     
-    bool IsAccelerating() { return isAccelerating; }
-    void ToggleAccelerating() { isAccelerating = !isAccelerating; }
+    void simulateGravity(bool value) { _simulateGravity = value; }
+    void AddForce(Vector3 force) { _netForce += force; }
+    
+    Vector3 GravityForce();
+    
+    Vector3 DragForce();
+    Vector3 FrictionForce();
 };
