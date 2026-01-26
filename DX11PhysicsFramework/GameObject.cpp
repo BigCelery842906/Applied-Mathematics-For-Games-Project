@@ -6,7 +6,7 @@ GameObject::GameObject(string type, Appearance* appearance) : _type(type), _appe
 	
 	_localTransform = new Transform(this);
 	
-	_physicsModel = new PhysicsModel(_localTransform);
+	_physicsModel = new ParticleModel(_localTransform);
 }
 
 GameObject::~GameObject()

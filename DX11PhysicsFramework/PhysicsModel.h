@@ -2,7 +2,7 @@
 #include "Transform.h"
 
 
-class PhysicsModel
+class PhysicsModel abstract
 {
 protected:
     Transform *_transform;

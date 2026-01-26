@@ -6,6 +6,7 @@
 
 #include "Transform.h"
 #include "Appearance.h"
+#include "ParticleModel.h"
 #include "PhysicsModel.h"
 #include "Structures.h"
 using namespace DirectX;
@@ -34,7 +35,7 @@ private:
 	GameObject* _parent = nullptr;
 	Transform* _localTransform = nullptr;
 	Appearance* _appearance = nullptr;
-	PhysicsModel* _physicsModel = nullptr;
+	ParticleModel* _physicsModel = nullptr;
 	
 	string _type;
 		
