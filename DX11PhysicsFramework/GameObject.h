@@ -8,6 +8,7 @@
 #include "Appearance.h"
 #include "ParticleModel.h"
 #include "PhysicsModel.h"
+#include "RigidBodyModel.h"
 #include "Structures.h"
 using namespace DirectX;
 using namespace std;
@@ -24,7 +25,7 @@ public:
 
 	Transform* GetTransform() { return _localTransform; }
 	Appearance* GetAppearance() { return _appearance; }
-	PhysicsModel* GetPhysicsModel() { return _physicsModel; }
+	RigidBodyModel* GetPhysicsModel() { return _rigidbodyModel; }
 	
 	void SetParent(GameObject * parent) { _parent = parent; }
 	GameObject* GetParent() { return _parent; }
@@ -35,7 +36,7 @@ private:
 	GameObject* _parent = nullptr;
 	Transform* _localTransform = nullptr;
 	Appearance* _appearance = nullptr;
-	ParticleModel* _physicsModel = nullptr;
+	RigidBodyModel* _rigidbodyModel = nullptr;
 	
 	string _type;
 		

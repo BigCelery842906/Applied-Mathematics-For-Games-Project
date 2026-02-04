@@ -1,5 +1,7 @@
 #include "DX11PhysicsFramework.h"
 
+#include "SphereCollider.h"
+
 
 #define FPS60 1.0f/60.0f
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -534,6 +536,8 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 		gameObject->GetTransform()->SetRotation(XMConvertToRadians(90.0f),0,0);
 		gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 		gameObject->GetPhysicsModel()->simulateGravity(true);
+		SphereCollider* collider = new SphereCollider(gameObject->GetTransform(), 1.0f);
+		gameObject->GetPhysicsModel()->SetCollider(collider);
 
 		_gameObjects.push_back(gameObject);
 	}
@@ -663,6 +667,16 @@ void DX11PhysicsFramework::Update()
 	{
 		gameObject->Update(deltaTime);
 		
+	}
+	
+	//Gameobject Collision
+	if (_gameObjects[1]->GetPhysicsModel()->IsCollideable() && _gameObjects[2]->GetPhysicsModel()->IsCollideable())
+	{
+		bool collision = _gameObjects[1]->GetPhysicsModel()->GetCollider()->CollidesWith(*_gameObjects[2]->GetPhysicsModel()->GetCollider());
+		if (collision) 
+		{
+			DebugPrintF("Collision \n");
+		}
 	}
 	
 	//Timestep

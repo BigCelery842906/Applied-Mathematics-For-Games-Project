@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Collider.h"
 #include "Transform.h"
 
 
@@ -21,6 +22,9 @@ protected:
     float _dragCoefficient = 0.9f;
     float _crossSectionalArea = 1.0f;
     
+    Collider* _collider = nullptr;
+   
+    
 public:
     PhysicsModel(Transform* transform, float mass = 1.0f);
     virtual void Update(float deltaTime);
@@ -30,12 +34,16 @@ public:
     
     // bool IsConstantlyAccelerating() { return isConstantAccelerate; }
     // void ToggleConstantAcceleration() { isConstantAccelerate = !isConstantAccelerate; }
-    
-    void simulateGravity(bool value) { _simulateGravity = value; }
-    void AddForce(Vector3 force) { _netForce += force; }
+
+    virtual void simulateGravity(bool value) { _simulateGravity = value; }
+    virtual void AddForce(Vector3 force) { _netForce += force; }
     
     Vector3 GravityForce();
     
     Vector3 DragForce();
     Vector3 FrictionForce();
+    
+    bool IsCollideable() const { return _collider != nullptr; }
+    Collider* GetCollider() const { return _collider; }
+    void SetCollider(Collider* collider) { _collider = collider; }
 };
