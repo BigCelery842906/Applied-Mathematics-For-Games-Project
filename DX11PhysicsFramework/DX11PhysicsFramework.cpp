@@ -688,14 +688,14 @@ void DX11PhysicsFramework::Update()
 	while (accumulator >= FPS60)
 	{
 		std::string acc = std::to_string(accumulator) + "\n ";
-		std::string var = "While loop accumulator: " + acc + "\n ";
+		std::string var = "While loop accumulator: " + acc;
 
 		OutputDebugStringA(var.c_str());
 		
 		accumulator -= FPS60;
 	}
 	
-	DebugPrintF("deltaTime is %f \n the number is %i \n", accumulator, 2);
+	// DebugPrintF("deltaTime is %f \n the number is %i \n", accumulator, 2);
 }
 
 void DX11PhysicsFramework::Draw()
