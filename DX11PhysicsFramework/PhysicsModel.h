@@ -46,4 +46,10 @@ public:
     bool IsCollideable() const { return _collider != nullptr; }
     Collider* GetCollider() const { return _collider; }
     void SetCollider(Collider* collider) { _collider = collider; }
+    
+    void ApplyImpulse(Vector3 impulse);
+    Vector3 GetVelocity() const { return _velocity; }
+    
+    float GetMass() const { return _mass; }
+    
 };

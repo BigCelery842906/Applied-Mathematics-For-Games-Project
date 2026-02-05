@@ -549,10 +549,6 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 	_gameObjects.push_back(gameObject);
 	
-	
-	// _gameObjects[1]->GetPhysicsModel()->SetAcceleration(Vector3(0,1,0));
-	// _gameObjects[2]->GetPhysicsModel()->SetVelocity(Vector3(0,1,0));
-	
 	timer = new Timer();
 	
 	return S_OK;
@@ -676,6 +672,32 @@ void DX11PhysicsFramework::Update()
 		if (collision) 
 		{
 			DebugPrintF("Collision \n");
+
+			// vector3 relative velocity = object1 velocity – object2 velocity // not normalized
+			Vector3 relativeVelocity = _gameObjects[1]->GetPhysicsModel()->GetVelocity() - _gameObjects[2]->GetPhysicsModel()->GetVelocity();
+			
+			// Vector3 collision normal = object1 position – object 2 position // normalized
+			Vector3 collisionNormal = _gameObjects[1]->GetTransform()->GetPosition() - _gameObjects[2]->GetTransform()->GetPosition();
+			collisionNormal.Normalize();
+			
+			//How elastic the collision is, also known as e
+			float restitution = 0.9; // between 0 and 1 for testing 
+			
+			if (collisionNormal * relativeVelocity < 0.0f) //If getting closer
+			{
+				// float vj = -(1+e) collisionNormal * relativeVelcoity
+				float vj = -(1+restitution) * collisionNormal * relativeVelocity;
+				
+				// float J = vj / (inverse mass 1 + inverse mass 2)
+				float J = vj / ((1/_gameObjects[1]->GetPhysicsModel()->GetMass() + (1/_gameObjects[2]->GetPhysicsModel()->GetMass())));
+				
+				// object1 -> ApplyImpulse(inverse Mass 1 * J * collisionNormal)
+				_gameObjects[1]->GetPhysicsModel()->ApplyImpulse((1/_gameObjects[1]->GetPhysicsModel()->GetMass() * J * collisionNormal));
+				
+				// object2 -> ApplyImpulse (-(inverse Mass 2* J * collisionNormal)) //reversed 
+				_gameObjects[2]->GetPhysicsModel()->ApplyImpulse(-((1/_gameObjects[2]->GetPhysicsModel()->GetMass() * J * collisionNormal)));
+				
+			}
 		}
 	}
 	

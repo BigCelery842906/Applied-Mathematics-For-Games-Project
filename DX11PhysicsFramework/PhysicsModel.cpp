@@ -82,3 +82,9 @@ Vector3 PhysicsModel::FrictionForce()
     float u = 1.05; // Frictional Coefficient according to sam - Changes depending on surfaces involved
     return u * DragForce();
 }
+
+void PhysicsModel::ApplyImpulse(Vector3 impulse)
+{
+    _velocity += impulse;
+    
+}
