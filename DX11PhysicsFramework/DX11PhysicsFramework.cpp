@@ -673,33 +673,69 @@ void DX11PhysicsFramework::Update()
 		{
 			DebugPrintF("Collision \n");
 
-			// vector3 relative velocity = object1 velocity – object2 velocity // not normalized
+			//Assign Positions into variables
+			Vector3 pos1 = _gameObjects[1]->GetPhysicsModel()->GetCollider()->GetPosition();
+			Vector3 pos2 = _gameObjects[2]->GetPhysicsModel()->GetCollider()->GetPosition();
+			Vector3 diffInPosition = pos1 - pos2;
+			
+			// Compute inverse masses
+			float inverseMass1 = 1.0f / _gameObjects[1]->GetPhysicsModel()->GetMass();
+			float inverseMass2 = 1.0f / _gameObjects[2]->GetPhysicsModel()->GetMass();
+			
+			// The relative velocity between the two objects
 			Vector3 relativeVelocity = _gameObjects[1]->GetPhysicsModel()->GetVelocity() - _gameObjects[2]->GetPhysicsModel()->GetVelocity();
 			
-			// Vector3 collision normal = object1 position – object 2 position // normalized
-			Vector3 collisionNormal = _gameObjects[1]->GetTransform()->GetPosition() - _gameObjects[2]->GetTransform()->GetPosition();
+			// Normalised Vector difference in position between the two objects
+			Vector3 collisionNormal = diffInPosition;
 			collisionNormal.Normalize();
 			
-			//How elastic the collision is, also known as e
-			float restitution = 0.9; // between 0 and 1 for testing 
-			
-			if (collisionNormal * relativeVelocity < 0.0f) //If getting closer
+			// Relative velocity along normal
+			float relativeVelocityAlongNormal = collisionNormal * relativeVelocity;
+			if (relativeVelocityAlongNormal < 0.0f) //If getting closer
 			{
-				// float vj = -(1+e) collisionNormal * relativeVelcoity
-				float vj = -(1+restitution) * collisionNormal * relativeVelocity;
+				//How elastic the collision is, also known as e
+				float restitution = 0.6f; // between 0 and 1 for testing
 				
-				// float J = vj / (inverse mass 1 + inverse mass 2)
-				float J = vj / ((1/_gameObjects[1]->GetPhysicsModel()->GetMass() + (1/_gameObjects[2]->GetPhysicsModel()->GetMass())));
+				// Calculate the resultant impulse for the collision
+				float vj = -(1+restitution) * relativeVelocityAlongNormal;
 				
-				// object1 -> ApplyImpulse(inverse Mass 1 * J * collisionNormal)
-				_gameObjects[1]->GetPhysicsModel()->ApplyImpulse((1/_gameObjects[1]->GetPhysicsModel()->GetMass() * J * collisionNormal));
+				// Divide the resultant impulse by the combined inverse mass
+				float J = vj / (inverseMass1 + inverseMass2);
 				
-				// object2 -> ApplyImpulse (-(inverse Mass 2* J * collisionNormal)) //reversed 
-				_gameObjects[2]->GetPhysicsModel()->ApplyImpulse(-((1/_gameObjects[2]->GetPhysicsModel()->GetMass() * J * collisionNormal)));
+				Vector3 impulseVector = collisionNormal * J; // this is the impulse (momentum)
+
+				// Position correction to prevent overlap
+				SphereCollider* s1 = dynamic_cast<SphereCollider*>(_gameObjects[1]->GetPhysicsModel()->GetCollider());
+				SphereCollider* s2 = dynamic_cast<SphereCollider*>(_gameObjects[2]->GetPhysicsModel()->GetCollider());
+
+				float radius1 = 0;
+				float radius2 = 0;
 				
+				if (s1) { radius1 = s1->GetRadius(); }
+				if (s2) { radius2 = s2->GetRadius(); }
+				
+				float overlapDepth = (radius1 + radius2) - (diffInPosition).Magnitude(); // positive when overlapping
+				
+				if (overlapDepth > 0.0f)
+				{
+					float correctionMag = overlapDepth / (inverseMass1 + inverseMass2);
+
+					Vector3 correction = collisionNormal * correctionMag;
+					
+					// Move objects out of overlap according to inverse mass ratio
+					_gameObjects[1]->GetTransform()->SetPosition(pos1 + correction * inverseMass1);
+					_gameObjects[2]->GetTransform()->SetPosition(pos2 - correction * inverseMass2);
+				}
+				
+				// Now that the objects are not overlapping, apply the impulse to the objects
+				// Apply impulse vector according to inverse mass ratio
+				_gameObjects[1]->GetPhysicsModel()->ApplyImpulse((inverseMass1 * impulseVector));
+				// Apply impulse vector according to inverse mass ratio, reversed
+				_gameObjects[2]->GetPhysicsModel()->ApplyImpulse(-((inverseMass2 * impulseVector)));
 			}
 		}
 	}
+
 	
 	//Timestep
 
