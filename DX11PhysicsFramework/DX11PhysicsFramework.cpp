@@ -1,6 +1,8 @@
 #include "DX11PhysicsFramework.h"
 
+#include "BoxCollider.h"
 #include "SphereCollider.h"
+#include "PlaneCollider.h"
 
 
 #define FPS60 1.0f/60.0f
@@ -524,6 +526,9 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	gameObject->GetTransform()->SetScale(15.0f, 15.0f, 15.0f);
 	gameObject->GetTransform()->SetRotation(XMConvertToRadians(90.0f),0,0);
 	gameObject->GetAppearance()->SetTextureRV(_GroundTextureRV);
+	gameObject->GetPhysicsModel()->simulateGravity(false);
+	PlaneCollider* collider = new PlaneCollider(gameObject->GetTransform(), Vector3(15.0f,15.0f,15.0f));
+	gameObject->GetPhysicsModel()->SetCollider(collider);
 
 	_gameObjects.push_back(gameObject);
 
@@ -662,7 +667,6 @@ void DX11PhysicsFramework::Update()
 	for (auto gameObject : _gameObjects)
 	{
 		gameObject->Update(deltaTime);
-		
 	}
 	
 	//Gameobject Collision

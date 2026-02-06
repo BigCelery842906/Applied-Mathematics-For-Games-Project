@@ -1,16 +1,17 @@
 ﻿#pragma once
 #include "Collider.h"
 
-class SphereCollider : public Collider
+class BoxCollider : public Collider
 {
-    float _radius = 1.0f;
+private:
+    Vector3 _colliderSize;
 public:
-    SphereCollider(Transform* transform, float radius) : Collider(transform) { _radius = radius; }
+    BoxCollider(Transform* transform, Vector3 colliderSize) : Collider(transform) { _colliderSize = colliderSize; }
     
     virtual bool CollidesWith(Collider& other) override { return other.CollidesWith(*this); }
     virtual bool CollidesWith(SphereCollider& other) override;
     virtual bool CollidesWith(BoxCollider& other) override;
     virtual bool CollidesWith(PlaneCollider& other) override;
-    
-    float GetRadius() const { return _radius; }
+
+    Vector3 GetColliderSize() const { return _colliderSize; }
 };

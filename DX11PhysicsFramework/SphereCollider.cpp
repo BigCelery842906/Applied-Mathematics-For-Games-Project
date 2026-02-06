@@ -1,5 +1,6 @@
-﻿#include "SphereCollider.h"
-
+﻿#include "BoxCollider.h"
+#include "SphereCollider.h"
+#include "PlaneCollider.h"
 #include "Debug.h"
 
 bool SphereCollider::CollidesWith(SphereCollider& other)
@@ -14,5 +15,15 @@ bool SphereCollider::CollidesWith(SphereCollider& other)
     }
     
     return false;
+}
+
+bool SphereCollider::CollidesWith(BoxCollider& other)
+{
+    return other.CollidesWith(*this);
+}
+
+bool SphereCollider::CollidesWith(PlaneCollider& other)
+{
+    return other.CollidesWith(*this);
 }
     
