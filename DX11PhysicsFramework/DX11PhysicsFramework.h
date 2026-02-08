@@ -81,6 +81,7 @@ private:
 	float accumulator = 0.0f;
 	
 	int currentSelectedGameobject = 0;
+	int numOfCubes = 4;
 
 private:
 	HRESULT CreateWindowHandle(HINSTANCE hInstance, int nCmdShow);

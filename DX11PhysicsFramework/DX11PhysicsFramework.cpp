@@ -521,7 +521,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 
 	Appearance* FloorAppearance = new Appearance(planeGeometry, noSpecMaterial);
 	
-	GameObject* gameObject = new GameObject("Floor", FloorAppearance);
+	GameObject* gameObject = new GameObject("Floor", FloorAppearance, 0);
 	gameObject->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 	gameObject->GetTransform()->SetScale(15.0f, 15.0f, 15.0f);
 	gameObject->GetTransform()->SetRotation(XMConvertToRadians(90.0f),0,0);
@@ -533,7 +533,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	_gameObjects.push_back(gameObject);
 
 	Appearance* CubeAppearance = new Appearance(cubeGeometry, shinyMaterial);
-	for (auto i = 0; i < 4; i++)
+	for (auto i = 0; i < numOfCubes; i++)
 	{
 		gameObject = new GameObject("Cube " + i, CubeAppearance);
 		gameObject->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
@@ -541,9 +541,9 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 		gameObject->GetTransform()->SetRotation(XMConvertToRadians(90.0f),0,0);
 		gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 		gameObject->GetPhysicsModel()->simulateGravity(true);
-		SphereCollider* collider = new SphereCollider(gameObject->GetTransform(), 1.0f);
+		// SphereCollider* collider = new SphereCollider(gameObject->GetTransform(), 1);
+		BoxCollider* collider = new BoxCollider(gameObject->GetTransform(), Vector3 (1, 1, 1));
 		gameObject->GetPhysicsModel()->SetCollider(collider);
-
 		_gameObjects.push_back(gameObject);
 	}
 
@@ -552,6 +552,9 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	gameObject->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
 	gameObject->GetTransform()->SetPosition(-5.0f, 0.5f, 10.0f);
 	gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
+	gameObject->GetPhysicsModel()->simulateGravity(true);
+	collider = new BoxCollider(gameObject->GetTransform(), Vector3 (1, 0.25, 1));
+	gameObject->GetPhysicsModel()->SetCollider(collider);
 	_gameObjects.push_back(gameObject);
 	
 	timer = new Timer();
@@ -616,14 +619,14 @@ void DX11PhysicsFramework::Update()
 	
 	if (GetAsyncKeyState('Q') & 0x0001)
 	{ //Currently needs to be 4 because of cubes
-		currentSelectedGameobject += 4;
+		currentSelectedGameobject += numOfCubes;
 		currentSelectedGameobject--;
-		currentSelectedGameobject %= 4;
+		currentSelectedGameobject %= numOfCubes;
 	}
 	if (GetAsyncKeyState('E') & 0x0001)
 	{
 		currentSelectedGameobject++;
-		currentSelectedGameobject %= 4;
+		currentSelectedGameobject %= numOfCubes;
 	}
 	if (GetAsyncKeyState('W'))
 	{
@@ -670,7 +673,7 @@ void DX11PhysicsFramework::Update()
 	}
 	
 	//Floor Collision
-	int gameObjectsToCheck = 4;
+	int gameObjectsToCheck = numOfCubes + 1;
 	for (int i = 0; i <= gameObjectsToCheck; i++)
 	{
 		for (int j = i + 1; j <= gameObjectsToCheck; j++ )
@@ -686,31 +689,45 @@ void DX11PhysicsFramework::Update()
 				Vector3 pos2 = _gameObjects[j]->GetPhysicsModel()->GetCollider()->GetPosition();
 				Vector3 diff = pos1 - pos2;
 				
+				// Absolute distances on each axis				
+				float absX = abs(diff.x);
+				float absY = abs(diff.y);
+				float absZ = abs(diff.z);
+				
 				// Compute inverse masses
 				float inverseMass1 = _gameObjects[i]->GetPhysicsModel()->GetInverseMass();
 				float inverseMass2 = _gameObjects[j]->GetPhysicsModel()->GetInverseMass(); 
 
 				// Relative velocity between the two objects
 				Vector3 relativeVelocity = _gameObjects[i]->GetPhysicsModel()->GetVelocity() - _gameObjects[j]->GetPhysicsModel()->GetVelocity();
-
+				
+#pragma region Collider Changes
 				// Get Colliders for both objects
-				BoxCollider* b1 = dynamic_cast<BoxCollider*>(_gameObjects[i]->GetPhysicsModel()->GetCollider());
-				SphereCollider* b2 = dynamic_cast<SphereCollider*>(_gameObjects[j]->GetPhysicsModel()->GetCollider());
-
-				Vector3 half1(0, 0, 0);
-				float half2 = 0;
-				if (b1) half1 = b1->GetColliderSize();
-				if (b2) half2 = b2->GetRadius();
-
-				// Absolute distances on each axis				
-				float absX = abs(diff.x);
-				float absY = abs(diff.y);
-				float absZ = abs(diff.z);
-
+				
+				
+				// Collider* collider2 = dynamic_cast<BoxCollider*>(_gameObjects[i]->GetPhysicsModel()->GetCollider());
+				// Collider* collider1 = dynamic_cast<SphereCollider*>(_gameObjects[j]->GetPhysicsModel()->GetCollider());
+				//
+				// Vector3 half1(0, 0, 0);
+				// float half2 = 0;
+				// if (collider2) half1 = collider2->GetColliderSize();
+				// if (collider1) half2 = collider1->GetRadius();
+				
 				// Overlap on each axis (positive when overlapping)
-				float overlapX = (half1.x + half2) - absX;
-				float overlapY = (half1.y + half2) - absY;
-				float overlapZ = (half1.z + half2) - absZ;
+				// float overlapX = (half1.x + half2) - absX;
+				// float overlapY = (half1.y + half2) - absY;
+				// float overlapZ = (half1.z + half2) - absZ;
+				
+				ColliderType object1Type = _gameObjects[i]->GetPhysicsModel()->GetCollider()->GetColliderType();
+				ColliderType object2Type = _gameObjects[j]->GetPhysicsModel()->GetCollider()->GetColliderType();
+				
+				Vector3 object1ColliderSize = _gameObjects[i]->GetPhysicsModel()->GetColliderSize();
+				Vector3 object2ColliderSize = _gameObjects[j]->GetPhysicsModel()->GetColliderSize();
+				
+				float overlapX = (object1ColliderSize.x + object2ColliderSize.x) - absX;
+				float overlapY = (object1ColliderSize.y + object2ColliderSize.y) - absY;
+				float overlapZ = (object1ColliderSize.z + object2ColliderSize.z) - absZ;
+#pragma endregion
 
 				// Find the axis of minimum overlap -> collision normal along that axis
 				float minOverlap = overlapX;
@@ -777,19 +794,23 @@ void DX11PhysicsFramework::Update()
 
 					// impulse scalar
 					float vj = -(1.0f + restitution) * relVelAlongNormal;
-					float J = vj;
+					float J = vj / (inverseMass1 + inverseMass2);
 
 					Vector3 impulse = collisionNormal * J;
 
 					// Positional correction to prevent sinking: use minPen (smallest axis overlap)
-					float correctionMag = minOverlap;
+					float correctionMag = minOverlap / (inverseMass1 + inverseMass2);
 					Vector3 correction = collisionNormal * correctionMag;
 
-					// Move objects out of overlap according to inverse masses
-					_gameObjects[j]->GetTransform()->SetPosition(pos2 - correction);
-
-					// Apply impulse proportional to inverse mass
-					_gameObjects[j]->GetPhysicsModel()->ApplyImpulse(-impulse);
+					// Move objects out of overlap according to inverse mass ratio
+					_gameObjects[i]->GetTransform()->SetPosition(pos1 + correction * inverseMass1);
+					_gameObjects[j]->GetTransform()->SetPosition(pos2 - correction * inverseMass2);
+					
+					// Now that the objects are not overlapping, apply the impulse to the objects
+					// Apply impulse vector according to inverse mass ratio
+					_gameObjects[i]->GetPhysicsModel()->ApplyImpulse((inverseMass1 * impulse));
+					// Apply impulse vector according to inverse mass ratio, reversed
+					_gameObjects[j]->GetPhysicsModel()->ApplyImpulse(-((inverseMass2 * impulse)));
 				}
 			}
 		}

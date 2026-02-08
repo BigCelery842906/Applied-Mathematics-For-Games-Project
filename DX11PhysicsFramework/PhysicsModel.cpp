@@ -1,6 +1,9 @@
 ﻿#include "PhysicsModel.h"
 
 #include "Appearance.h"
+#include "BoxCollider.h"
+#include "PlaneCollider.h"
+#include "SphereCollider.h"
 
 PhysicsModel::PhysicsModel(Transform* transform, float mass)
 {
@@ -12,6 +15,16 @@ PhysicsModel::PhysicsModel(Transform* transform, float mass)
 void PhysicsModel::Update(float deltaTime)
 {
     Vector3 position = _transform->GetPosition();
+    
+    if (_mass == 0.0f)
+    {
+        // Clear accumulated forces so future updates start clean.
+        _netForce = Vector3(0.0f, 0.0f, 0.0f);
+        _acceleration = Vector3(0.0f, 0.0f, 0.0f);
+        // Optionally keep velocity at zero for static objects.
+        _velocity = Vector3(0.0f, 0.0f, 0.0f);
+        return;
+    }
     // if (isConstantVelocity)
     // {
     //     _velocity = _constantVelocity;
@@ -83,8 +96,52 @@ Vector3 PhysicsModel::FrictionForce()
     return u * DragForce();
 }
 
+Vector3 PhysicsModel::GetColliderSize()
+{
+    if (_collider)
+    {
+        switch (_collider->GetColliderType())
+        {
+        case TypeCollider:
+            {
+                Collider* collider = dynamic_cast<Collider*>(_collider);
+                break;
+            }
+        case TypeBoxCollider:
+            {
+                BoxCollider* collider = dynamic_cast<BoxCollider*>(_collider);
+                return collider->GetColliderSize();
+                break;
+            }
+        case TypePlaneCollider:
+            { // TODO NOT YET IMPLEMENTED
+                PlaneCollider* collider = dynamic_cast<PlaneCollider*>(_collider);
+                break;
+            }
+        case TypeSphereCollider:
+            {
+                SphereCollider* collider = dynamic_cast<SphereCollider*>(_collider);
+                float radius = collider->GetRadius();
+                return Vector3 (radius, radius, radius);
+                break;
+            }
+        }
+    }
+    
+    return Vector3(0, 0, 0);
+}
+
 void PhysicsModel::ApplyImpulse(Vector3 impulse)
 {
     _velocity += impulse;
     
+}
+
+float PhysicsModel::GetInverseMass() const
+{
+    if (_mass == 0)
+    {
+        return 0;
+    }
+    return 1.0f / _mass;
 }

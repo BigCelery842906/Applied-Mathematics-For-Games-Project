@@ -7,7 +7,7 @@ class PlaneCollider : public Collider
 private:
     Vector3 _colliderSize;
 public:
-    PlaneCollider(Transform* transform, Vector3 ColliderSize) : Collider(transform) { _colliderSize = ColliderSize; }
+    PlaneCollider(Transform* transform, Vector3 ColliderSize) : Collider(transform, TypePlaneCollider) { _colliderSize = ColliderSize; }
 
     virtual bool CollidesWith(Collider& other) override { return other.CollidesWith(*this); }
     virtual bool CollidesWith(SphereCollider& other) override;

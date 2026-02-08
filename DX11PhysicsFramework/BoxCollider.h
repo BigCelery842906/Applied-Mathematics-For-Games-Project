@@ -6,7 +6,7 @@ class BoxCollider : public Collider
 private:
     Vector3 _colliderSize;
 public:
-    BoxCollider(Transform* transform, Vector3 colliderSize) : Collider(transform) { _colliderSize = colliderSize; }
+    BoxCollider(Transform* transform, Vector3 colliderSize) : Collider(transform, TypeBoxCollider) { _colliderSize = colliderSize; }
     
     virtual bool CollidesWith(Collider& other) override { return other.CollidesWith(*this); }
     virtual bool CollidesWith(SphereCollider& other) override;
