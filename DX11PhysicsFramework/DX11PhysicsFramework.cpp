@@ -524,7 +524,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	GameObject* gameObject = new GameObject("Floor", FloorAppearance, 0);
 	gameObject->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 	gameObject->GetTransform()->SetScale(15.0f, 15.0f, 15.0f);
-	gameObject->GetTransform()->SetRotation(XMConvertToRadians(90.0f),0,0);
+	gameObject->GetTransform()->SetRotation(90.0f,0,0);
 	gameObject->GetAppearance()->SetTextureRV(_GroundTextureRV);
 	gameObject->GetPhysicsModel()->simulateGravity(false);
 	BoxCollider* collider = new BoxCollider(gameObject->GetTransform(), Vector3(15.0f,0.01f,15.0f));
@@ -538,7 +538,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 		gameObject = new GameObject("Cube " + i, CubeAppearance);
 		gameObject->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
 		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 1.0f, 10.0f);
-		gameObject->GetTransform()->SetRotation(XMConvertToRadians(90.0f),0,0);
+		gameObject->GetTransform()->SetRotation(90.0f,0,0);
 		gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 		gameObject->GetPhysicsModel()->simulateGravity(true);
 		// SphereCollider* collider = new SphereCollider(gameObject->GetTransform(), 1);

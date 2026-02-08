@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <directxmath.h>
-#include "Vector3.h"
+#include "Quaternion.h"
 
 using namespace DirectX;
 class GameObject;
@@ -10,7 +10,7 @@ class Transform
 {
 private:
     Vector3 _position;
-    Vector3 _rotation;
+    Quaternion _orientation;
     Vector3 _scale;
     
     XMFLOAT4X4 _world;
@@ -32,14 +32,22 @@ public:
     Vector3 GetScale() const { return _scale; }
 
     //Rotation
-    void SetRotation(float x, float y, float z) { _rotation.x = x; _rotation.y = y; _rotation.z = z; }
-    void SetRotation(Vector3 rotation) { _rotation = rotation; }
+    void SetRotation(float x, float y, float z) { _orientation = MakeQFromEulerAngles(x, y, z); }
+    void SetRotation(Vector3 rotation) { _orientation = MakeQFromEulerAngles(rotation.x, rotation.y, rotation.z); }
     
-    Vector3 GetRotation() const { return _rotation; }
+    Vector3 GetRotation() const { return MakeEulerAnglesFromQ(_orientation); }
+    
+    //Orientation
+    void SetOrientation(Quaternion rotation) { _orientation = rotation; }
+    
+    Quaternion GetOrientation() const { return _orientation; }
 
+    //World Matrix
     void SetWorldMatrix(XMMATRIX world) { XMStoreFloat4x4(&_world, world); }
+   
     XMMATRIX GetWorldMatrix() const { return XMLoadFloat4x4(&_world); }
 
+    //Standard Functions
     Transform(GameObject* parentGO);
     ~Transform();
     void Update(float dt);

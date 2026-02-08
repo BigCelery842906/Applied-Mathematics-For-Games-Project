@@ -5,7 +5,7 @@ Transform::Transform(GameObject* parentGO)
 {
     _parentGO = parentGO->GetTransform();
     _position = Vector3(0.0f, 0.0f, 0.0f);
-    _rotation =  Vector3(0.0f, 0.0f, 0.0f);
+    _orientation = Quaternion();
     _scale = Vector3(1.0f, 1.0f, 1.0f);
 }
 
@@ -25,7 +25,10 @@ void Transform::Update(float dt)
 {
     // Calculate world matrix
     XMMATRIX scale = XMMatrixScaling(_scale.x, _scale.y, _scale.z);
-    XMMATRIX rotation = XMMatrixRotationX(_rotation.x) * XMMatrixRotationY(_rotation.y) * XMMatrixRotationZ(_rotation.z);
+    
+    XMVECTOR vector = XMVectorSet(_orientation.v.x, _orientation.v.y, _orientation.v.z, _orientation.n);
+    XMMATRIX rotation = XMMatrixRotationQuaternion(vector);
+    
     XMMATRIX translation = XMMatrixTranslation(_position.x, _position.y, _position.z);
     
     XMStoreFloat4x4(&_world, scale * rotation * translation);
