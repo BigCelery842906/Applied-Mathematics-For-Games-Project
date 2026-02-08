@@ -82,6 +82,7 @@ private:
 	
 	int currentSelectedGameobject = 0;
 	int numOfCubes = 4;
+	int gameObjectsToCheck = numOfCubes + 1;
 
 private:
 	HRESULT CreateWindowHandle(HINSTANCE hInstance, int nCmdShow);
@@ -99,6 +100,7 @@ public:
 
 	bool HandleKeyboard(MSG msg);
 	void Update();
+	void ResolveCollisions();
 	void Draw();
 };
 

@@ -676,21 +676,46 @@ void DX11PhysicsFramework::Update()
 		gameObject->Update(deltaTime);
 	}
 	
-	//Floor Collision
-	int gameObjectsToCheck = numOfCubes + 1;
+	//Collisions
+	ResolveCollisions();
+	
+	//Timestep
+
+	float newDeltaTime = timer->GetDeltaTime();
+	
+	accumulator += timer->GetDeltaTime();
+	//OutputDebugStringA(std::to_string(accumulator).c_str());
+	while (accumulator >= FPS60)
+	{
+		// std::string acc = std::to_string(accumulator) + "\n ";
+		// std::string var = "While loop accumulator: " + acc;
+		//
+		// OutputDebugStringA(var.c_str());
+		
+		accumulator -= FPS60;
+	}
+	
+	// DebugPrintF("deltaTime is %f \n the number is %i \n", accumulator, 2);
+}
+
+void DX11PhysicsFramework::ResolveCollisions()
+{
 	for (int i = 0; i <= gameObjectsToCheck; i++)
 	{
+		Transform* objectATransform = _gameObjects[i]->GetTransform();
+		PhysicsModel* objectA = _gameObjects[i]->GetPhysicsModel();
+		
 		for (int j = i + 1; j <= gameObjectsToCheck; j++ )
-		if (_gameObjects[i]->GetPhysicsModel()->IsCollideable() && _gameObjects[j]->GetPhysicsModel()->IsCollideable())
 		{
-			bool collision = _gameObjects[i]->GetPhysicsModel()->GetCollider()->CollidesWith(*_gameObjects[j]->GetPhysicsModel()->GetCollider());
-			if (collision)
+			Transform* objectBTransform = _gameObjects[j]->GetTransform();
+			PhysicsModel* objectB = _gameObjects[j]->GetPhysicsModel();
+			
+			if (objectA->IsCollideable() && objectB->IsCollideable() && objectA->GetCollider()->CollidesWith(*objectB->GetCollider()))
 			{
-				// DebugPrintF("Collision \n");
 				// Assign Positions into variables
-				Vector3 pos1 = _gameObjects[i]->GetPhysicsModel()->GetCollider()->GetPosition();
-				Vector3 pos2 = _gameObjects[j]->GetPhysicsModel()->GetCollider()->GetPosition();
-				Vector3 diff = pos1 - pos2;
+				Vector3 posA = objectATransform->GetPosition();
+				Vector3 posB = objectBTransform->GetPosition();
+				Vector3 diff = posA - posB;
 				
 				// Absolute distances on each axis				
 				float absX = abs(diff.x);
@@ -698,39 +723,24 @@ void DX11PhysicsFramework::Update()
 				float absZ = abs(diff.z);
 				
 				// Compute inverse masses
-				float inverseMass1 = _gameObjects[i]->GetPhysicsModel()->GetInverseMass();
-				float inverseMass2 = _gameObjects[j]->GetPhysicsModel()->GetInverseMass(); 
+				float inverseMassA = objectA->GetInverseMass();
+				float inverseMassB = objectB->GetInverseMass(); 
+				float combinedInverseMass = inverseMassA + inverseMassB;
 
 				// Relative velocity between the two objects
-				Vector3 relativeVelocity = _gameObjects[i]->GetPhysicsModel()->GetVelocity() - _gameObjects[j]->GetPhysicsModel()->GetVelocity();
-				
-#pragma region Collider Changes
+				Vector3 relativeVelocity = objectA->GetVelocity() - objectB->GetVelocity();
+					
 				// Get Colliders for both objects
 				
+				ColliderType objectAType =objectA->GetCollider()->GetColliderType();
+				ColliderType objectBType =objectB->GetCollider()->GetColliderType();
 				
-				// Collider* collider2 = dynamic_cast<BoxCollider*>(_gameObjects[i]->GetPhysicsModel()->GetCollider());
-				// Collider* collider1 = dynamic_cast<SphereCollider*>(_gameObjects[j]->GetPhysicsModel()->GetCollider());
-				//
-				// Vector3 half1(0, 0, 0);
-				// float half2 = 0;
-				// if (collider2) half1 = collider2->GetColliderSize();
-				// if (collider1) half2 = collider1->GetRadius();
+				Vector3 objectAColliderSize = objectA->GetColliderSize();
+				Vector3 objectBColliderSize = objectB->GetColliderSize();
 				
-				// Overlap on each axis (positive when overlapping)
-				// float overlapX = (half1.x + half2) - absX;
-				// float overlapY = (half1.y + half2) - absY;
-				// float overlapZ = (half1.z + half2) - absZ;
-				
-				ColliderType object1Type = _gameObjects[i]->GetPhysicsModel()->GetCollider()->GetColliderType();
-				ColliderType object2Type = _gameObjects[j]->GetPhysicsModel()->GetCollider()->GetColliderType();
-				
-				Vector3 object1ColliderSize = _gameObjects[i]->GetPhysicsModel()->GetColliderSize();
-				Vector3 object2ColliderSize = _gameObjects[j]->GetPhysicsModel()->GetColliderSize();
-				
-				float overlapX = (object1ColliderSize.x + object2ColliderSize.x) - absX;
-				float overlapY = (object1ColliderSize.y + object2ColliderSize.y) - absY;
-				float overlapZ = (object1ColliderSize.z + object2ColliderSize.z) - absZ;
-#pragma endregion
+				float overlapX = (objectAColliderSize.x + objectBColliderSize.x) - absX;
+				float overlapY = (objectAColliderSize.y + objectBColliderSize.y) - absY;
+				float overlapZ = (objectAColliderSize.z + objectBColliderSize.z) - absZ;
 
 				// Find the axis of minimum overlap -> collision normal along that axis
 				float minOverlap = overlapX;
@@ -797,45 +807,27 @@ void DX11PhysicsFramework::Update()
 
 					// impulse scalar
 					float vj = -(1.0f + restitution) * relVelAlongNormal;
-					float J = vj / (inverseMass1 + inverseMass2);
+					float J = vj / combinedInverseMass;
 
 					Vector3 impulse = collisionNormal * J;
 
-					// Positional correction to prevent sinking: use minPen (smallest axis overlap)
-					float correctionMag = minOverlap / (inverseMass1 + inverseMass2);
+					// Positional correction
+					float correctionMag = minOverlap / combinedInverseMass;
 					Vector3 correction = collisionNormal * correctionMag;
 
 					// Move objects out of overlap according to inverse mass ratio
-					_gameObjects[i]->GetTransform()->SetPosition(pos1 + correction * inverseMass1);
-					_gameObjects[j]->GetTransform()->SetPosition(pos2 - correction * inverseMass2);
+					objectATransform->SetPosition(posA + correction * inverseMassA);
+					objectBTransform->SetPosition(posB - correction * inverseMassB);
 					
 					// Now that the objects are not overlapping, apply the impulse to the objects
 					// Apply impulse vector according to inverse mass ratio
-					_gameObjects[i]->GetPhysicsModel()->ApplyImpulse((inverseMass1 * impulse));
+					objectA->ApplyImpulse((inverseMassA * impulse));
 					// Apply impulse vector according to inverse mass ratio, reversed
-					_gameObjects[j]->GetPhysicsModel()->ApplyImpulse(-((inverseMass2 * impulse)));
+					objectB->ApplyImpulse(-((inverseMassB * impulse)));
 				}
 			}
 		}
 	}
-	
-	//Timestep
-
-	float newDeltaTime = timer->GetDeltaTime();
-	
-	accumulator += timer->GetDeltaTime();
-	//OutputDebugStringA(std::to_string(accumulator).c_str());
-	while (accumulator >= FPS60)
-	{
-		// std::string acc = std::to_string(accumulator) + "\n ";
-		// std::string var = "While loop accumulator: " + acc;
-		//
-		// OutputDebugStringA(var.c_str());
-		
-		accumulator -= FPS60;
-	}
-	
-	// DebugPrintF("deltaTime is %f \n the number is %i \n", accumulator, 2);
 }
 
 void DX11PhysicsFramework::Draw()

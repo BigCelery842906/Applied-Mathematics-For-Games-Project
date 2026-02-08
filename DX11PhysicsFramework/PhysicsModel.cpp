@@ -16,42 +16,19 @@ void PhysicsModel::Update(float deltaTime)
 {
     Vector3 position = _transform->GetPosition();
     
-    if (_mass == 0.0f)
-    {
-        // Clear accumulated forces so future updates start clean.
-        _netForce = Vector3(0.0f, 0.0f, 0.0f);
-        _acceleration = Vector3(0.0f, 0.0f, 0.0f);
-        // Optionally keep velocity at zero for static objects.
-        _velocity = Vector3(0.0f, 0.0f, 0.0f);
-        return;
-    }
-    // if (isConstantVelocity)
-    // {
-    //     _velocity = _constantVelocity;
-    // }
-    //
-    // if (isConstantAccelerate)
-    // {
-    //     _velocity += _constantAcceleration * deltaTime;
-    // }
-    
-    // if (position.y > 1) //Until collision works, use this wrap for gravity/friction
-    // {
         if (_simulateGravity)
         {
             _netForce += GravityForce();
         }
-    // }
-    // else
-    // {
-    //     if (_simulateGravity)
-    //     {
-    //         _velocity.y = 0; //Just until I can get actual collision going
-    //     }
+    
+    //Need to get proper logic in here for when colliding with something, currently friction applies all the time
     _netForce += FrictionForce();
-    // }
+    
     _netForce += DragForce();
-    _acceleration = _netForce / _mass;
+    if (_mass != 0) //catch on 0 mass to prevent NaN errors
+    {
+        _acceleration = _netForce / _mass;
+    }
     _velocity += _acceleration * deltaTime;
     
     position += _velocity * deltaTime;
