@@ -20,7 +20,7 @@ class Collider abstract
     Transform* _transform;
     ColliderType _type;
 public:
-    Collider(Transform* transform, ColliderType type) {_transform = transform; _type = type; }
+    Collider(Transform* transform, ColliderType type = TypeCollider) {_transform = transform; _type = type; }
     
     virtual bool CollidesWith(Collider& other) = 0;
     virtual bool CollidesWith(SphereCollider& other) = 0;

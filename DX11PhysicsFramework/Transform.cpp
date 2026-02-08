@@ -27,8 +27,10 @@ void Transform::Update(float dt)
     XMMATRIX scale = XMMatrixScaling(_scale.x, _scale.y, _scale.z);
     
     XMVECTOR vector = XMVectorSet(_orientation.v.x, _orientation.v.y, _orientation.v.z, _orientation.n);
-    XMMATRIX rotation = XMMatrixRotationQuaternion(vector);
+    vector = XMQuaternionNormalize(vector);
     
+    XMMATRIX rotation = XMMatrixRotationQuaternion(vector);
+        
     XMMATRIX translation = XMMatrixTranslation(_position.x, _position.y, _position.z);
     
     XMStoreFloat4x4(&_world, scale * rotation * translation);

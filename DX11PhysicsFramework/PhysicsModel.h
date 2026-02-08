@@ -54,4 +54,6 @@ public:
     float GetMass() const { return _mass; }
     float GetInverseMass() const;
     
+    virtual void AddRelativeForce(Vector3 force, Vector3 posToApply) {};
+    
 };

@@ -648,6 +648,10 @@ void DX11PhysicsFramework::Update()
 	{
 		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 50, 0));;
 	}
+	if (GetAsyncKeyState('P'))
+	{
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddRelativeForce(Vector3(0,0,-1), Vector3(1,0,-1));		
+	}
 	
 	
 	// TODO: ADD INCREASE/DECREASE FOR ACCELERATION
@@ -682,8 +686,7 @@ void DX11PhysicsFramework::Update()
 			bool collision = _gameObjects[i]->GetPhysicsModel()->GetCollider()->CollidesWith(*_gameObjects[j]->GetPhysicsModel()->GetCollider());
 			if (collision)
 			{
-				DebugPrintF("Collision \n");
-
+				// DebugPrintF("Collision \n");
 				// Assign Positions into variables
 				Vector3 pos1 = _gameObjects[i]->GetPhysicsModel()->GetCollider()->GetPosition();
 				Vector3 pos2 = _gameObjects[j]->GetPhysicsModel()->GetCollider()->GetPosition();

@@ -16,5 +16,5 @@ public:
     void Reset();
     void Update(float deltaTime) override;
     
-    
+    virtual void AddRelativeForce(Vector3 force, Vector3 posToApply) override { AddForce(force); }
 };
