@@ -18,7 +18,7 @@ using namespace std;
 class GameObject
 {
 public:
-	GameObject(string type, Appearance* _appearance);
+	GameObject(string type, Appearance* _appearance, float mass = 1.0f);
 	~GameObject();
 
 	string GetType() const { return _type; }

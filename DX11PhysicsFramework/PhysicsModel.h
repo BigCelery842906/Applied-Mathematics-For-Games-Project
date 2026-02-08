@@ -51,5 +51,6 @@ public:
     Vector3 GetVelocity() const { return _velocity; }
     
     float GetMass() const { return _mass; }
+    float GetInverseMass() const { if (_mass == 0) { return 0; } return 1.0f / _mass; }
     
 };

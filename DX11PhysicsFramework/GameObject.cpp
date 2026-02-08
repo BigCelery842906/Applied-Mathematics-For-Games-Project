@@ -1,12 +1,12 @@
 #include "GameObject.h"
 
-GameObject::GameObject(string type, Appearance* appearance) : _type(type), _appearance(appearance)
+GameObject::GameObject(string type, Appearance* appearance, float mass) : _type(type), _appearance(appearance)
 {
 	_parent = nullptr;
 	
 	_localTransform = new Transform(this);
 	
-	_rigidbodyModel = new RigidBodyModel(_localTransform);
+	_rigidbodyModel = new RigidBodyModel(_localTransform, mass);
 }
 
 GameObject::~GameObject()

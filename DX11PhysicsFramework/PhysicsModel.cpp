@@ -22,21 +22,21 @@ void PhysicsModel::Update(float deltaTime)
     //     _velocity += _constantAcceleration * deltaTime;
     // }
     
-    if (position.y > 1) //Until collision works, use this wrap for gravity/friction
-    {
+    // if (position.y > 1) //Until collision works, use this wrap for gravity/friction
+    // {
         if (_simulateGravity)
         {
             _netForce += GravityForce();
         }
-    }
-    else
-    {
-        if (_simulateGravity)
-        {
-            _velocity.y = 0; //Just until I can get actual collision going
-        }
-        _netForce += FrictionForce();
-    }
+    // }
+    // else
+    // {
+    //     if (_simulateGravity)
+    //     {
+    //         _velocity.y = 0; //Just until I can get actual collision going
+    //     }
+    _netForce += FrictionForce();
+    // }
     _netForce += DragForce();
     _acceleration = _netForce / _mass;
     _velocity += _acceleration * deltaTime;

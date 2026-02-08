@@ -527,7 +527,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	gameObject->GetTransform()->SetRotation(XMConvertToRadians(90.0f),0,0);
 	gameObject->GetAppearance()->SetTextureRV(_GroundTextureRV);
 	gameObject->GetPhysicsModel()->simulateGravity(false);
-	PlaneCollider* collider = new PlaneCollider(gameObject->GetTransform(), Vector3(15.0f,15.0f,15.0f));
+	BoxCollider* collider = new BoxCollider(gameObject->GetTransform(), Vector3(15.0f,0.01f,15.0f));
 	gameObject->GetPhysicsModel()->SetCollider(collider);
 
 	_gameObjects.push_back(gameObject);
@@ -669,77 +669,131 @@ void DX11PhysicsFramework::Update()
 		gameObject->Update(deltaTime);
 	}
 	
-	//Gameobject Collision
-	if (_gameObjects[1]->GetPhysicsModel()->IsCollideable() && _gameObjects[2]->GetPhysicsModel()->IsCollideable())
+	//Floor Collision
+	int gameObjectsToCheck = 4;
+	for (int i = 0; i <= gameObjectsToCheck; i++)
 	{
-		bool collision = _gameObjects[1]->GetPhysicsModel()->GetCollider()->CollidesWith(*_gameObjects[2]->GetPhysicsModel()->GetCollider());
-		if (collision) 
+		for (int j = i + 1; j <= gameObjectsToCheck; j++ )
+		if (_gameObjects[i]->GetPhysicsModel()->IsCollideable() && _gameObjects[j]->GetPhysicsModel()->IsCollideable())
 		{
-			DebugPrintF("Collision \n");
-
-			//Assign Positions into variables
-			Vector3 pos1 = _gameObjects[1]->GetPhysicsModel()->GetCollider()->GetPosition();
-			Vector3 pos2 = _gameObjects[2]->GetPhysicsModel()->GetCollider()->GetPosition();
-			Vector3 diffInPosition = pos1 - pos2;
-			
-			// Compute inverse masses
-			float inverseMass1 = 1.0f / _gameObjects[1]->GetPhysicsModel()->GetMass();
-			float inverseMass2 = 1.0f / _gameObjects[2]->GetPhysicsModel()->GetMass();
-			
-			// The relative velocity between the two objects
-			Vector3 relativeVelocity = _gameObjects[1]->GetPhysicsModel()->GetVelocity() - _gameObjects[2]->GetPhysicsModel()->GetVelocity();
-			
-			// Normalised Vector difference in position between the two objects
-			Vector3 collisionNormal = diffInPosition;
-			collisionNormal.Normalize();
-			
-			// Relative velocity along normal
-			float relativeVelocityAlongNormal = collisionNormal * relativeVelocity;
-			if (relativeVelocityAlongNormal < 0.0f) //If getting closer
+			bool collision = _gameObjects[i]->GetPhysicsModel()->GetCollider()->CollidesWith(*_gameObjects[j]->GetPhysicsModel()->GetCollider());
+			if (collision)
 			{
-				//How elastic the collision is, also known as e
-				float restitution = 0.6f; // between 0 and 1 for testing
-				
-				// Calculate the resultant impulse for the collision
-				float vj = -(1+restitution) * relativeVelocityAlongNormal;
-				
-				// Divide the resultant impulse by the combined inverse mass
-				float J = vj / (inverseMass1 + inverseMass2);
-				
-				Vector3 impulseVector = collisionNormal * J; // this is the impulse (momentum)
+				DebugPrintF("Collision \n");
 
-				// Position correction to prevent overlap
-				SphereCollider* s1 = dynamic_cast<SphereCollider*>(_gameObjects[1]->GetPhysicsModel()->GetCollider());
-				SphereCollider* s2 = dynamic_cast<SphereCollider*>(_gameObjects[2]->GetPhysicsModel()->GetCollider());
+				// Assign Positions into variables
+				Vector3 pos1 = _gameObjects[i]->GetPhysicsModel()->GetCollider()->GetPosition();
+				Vector3 pos2 = _gameObjects[j]->GetPhysicsModel()->GetCollider()->GetPosition();
+				Vector3 diff = pos1 - pos2;
+				
+				// Compute inverse masses
+				float inverseMass1 = _gameObjects[i]->GetPhysicsModel()->GetInverseMass();
+				float inverseMass2 = _gameObjects[j]->GetPhysicsModel()->GetInverseMass(); 
 
-				float radius1 = 0;
-				float radius2 = 0;
+				// Relative velocity between the two objects
+				Vector3 relativeVelocity = _gameObjects[i]->GetPhysicsModel()->GetVelocity() - _gameObjects[j]->GetPhysicsModel()->GetVelocity();
+
+				// Get Colliders for both objects
+				BoxCollider* b1 = dynamic_cast<BoxCollider*>(_gameObjects[i]->GetPhysicsModel()->GetCollider());
+				SphereCollider* b2 = dynamic_cast<SphereCollider*>(_gameObjects[j]->GetPhysicsModel()->GetCollider());
+
+				Vector3 half1(0, 0, 0);
+				float half2 = 0;
+				if (b1) half1 = b1->GetColliderSize();
+				if (b2) half2 = b2->GetRadius();
+
+				// Absolute distances on each axis				
+				float absX = abs(diff.x);
+				float absY = abs(diff.y);
+				float absZ = abs(diff.z);
+
+				// Overlap on each axis (positive when overlapping)
+				float overlapX = (half1.x + half2) - absX;
+				float overlapY = (half1.y + half2) - absY;
+				float overlapZ = (half1.z + half2) - absZ;
+
+				// Find the axis of minimum overlap -> collision normal along that axis
+				float minOverlap = overlapX;
 				
-				if (s1) { radius1 = s1->GetRadius(); }
-				if (s2) { radius2 = s2->GetRadius(); }
-				
-				float overlapDepth = (radius1 + radius2) - (diffInPosition).Magnitude(); // positive when overlapping
-				
-				if (overlapDepth > 0.0f)
+				int axis = 0;
+				if (overlapY < minOverlap)
 				{
-					float correctionMag = overlapDepth / (inverseMass1 + inverseMass2);
-
-					Vector3 correction = collisionNormal * correctionMag;
-					
-					// Move objects out of overlap according to inverse mass ratio
-					_gameObjects[1]->GetTransform()->SetPosition(pos1 + correction * inverseMass1);
-					_gameObjects[2]->GetTransform()->SetPosition(pos2 - correction * inverseMass2);
+					minOverlap = overlapY; 
+					axis = 1;
+				}
+				if (overlapZ < minOverlap)
+				{
+					minOverlap = overlapZ; 
+					axis = 2;
 				}
 				
-				// Now that the objects are not overlapping, apply the impulse to the objects
-				// Apply impulse vector according to inverse mass ratio
-				_gameObjects[1]->GetPhysicsModel()->ApplyImpulse((inverseMass1 * impulseVector));
-				// Apply impulse vector according to inverse mass ratio, reversed
-				_gameObjects[2]->GetPhysicsModel()->ApplyImpulse(-((inverseMass2 * impulseVector)));
+				Vector3 collisionNormal(0, 0, 0);
+				switch (axis)
+				{
+				case 0:
+					{
+						if (diff.x < 0)
+						{
+							collisionNormal.x = -1;
+						}
+						else
+						{
+							collisionNormal.x = 1;
+						}
+						break;
+					}
+				case 1:
+					{ 
+						if (diff.y < 0)
+						{
+							collisionNormal.y = -1;
+						}
+						else
+						{
+							collisionNormal.y = 1;
+						}
+						break;
+					}
+				case 2:
+					{ 
+						if (diff.z < 0)
+						{
+							collisionNormal.z = -1;
+						}
+						else
+						{
+							collisionNormal.z = 1;
+						}
+						break;
+					}
+				}
+
+				// Relative velocity along normal
+				float relVelAlongNormal = collisionNormal * relativeVelocity;
+				if (relVelAlongNormal < 0.0f) // If getting closer
+				{
+					// restitution (elasticity)
+					float restitution = 0.6f;
+
+					// impulse scalar
+					float vj = -(1.0f + restitution) * relVelAlongNormal;
+					float J = vj;
+
+					Vector3 impulse = collisionNormal * J;
+
+					// Positional correction to prevent sinking: use minPen (smallest axis overlap)
+					float correctionMag = minOverlap;
+					Vector3 correction = collisionNormal * correctionMag;
+
+					// Move objects out of overlap according to inverse masses
+					_gameObjects[j]->GetTransform()->SetPosition(pos2 - correction);
+
+					// Apply impulse proportional to inverse mass
+					_gameObjects[j]->GetPhysicsModel()->ApplyImpulse(-impulse);
+				}
 			}
 		}
 	}
-
 	
 	//Timestep
 
@@ -749,10 +803,10 @@ void DX11PhysicsFramework::Update()
 	//OutputDebugStringA(std::to_string(accumulator).c_str());
 	while (accumulator >= FPS60)
 	{
-		std::string acc = std::to_string(accumulator) + "\n ";
-		std::string var = "While loop accumulator: " + acc;
-
-		OutputDebugStringA(var.c_str());
+		// std::string acc = std::to_string(accumulator) + "\n ";
+		// std::string var = "While loop accumulator: " + acc;
+		//
+		// OutputDebugStringA(var.c_str());
 		
 		accumulator -= FPS60;
 	}
