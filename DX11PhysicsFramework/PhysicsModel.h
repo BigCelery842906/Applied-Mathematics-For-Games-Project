@@ -17,6 +17,7 @@ protected:
     float _mass = 1.0f;
     
     bool _simulateGravity = false;
+    bool _colliding = false;
     
     float _density = 1.0f;
     float _dragCoefficient = 0.9f;
@@ -55,5 +56,7 @@ public:
     float GetInverseMass() const;
     
     virtual void AddRelativeForce(Vector3 force, Vector3 posToApply) {};
+    
+    void isCurrentlyColliding(bool value) { _colliding = value; }
     
 };

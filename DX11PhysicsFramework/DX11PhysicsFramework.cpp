@@ -676,9 +676,6 @@ void DX11PhysicsFramework::Update()
 		gameObject->Update(deltaTime);
 	}
 	
-	//Collisions
-	ResolveCollisions();
-	
 	//Timestep
 
 	float newDeltaTime = timer->GetDeltaTime();
@@ -693,6 +690,9 @@ void DX11PhysicsFramework::Update()
 		// OutputDebugStringA(var.c_str());
 		
 		accumulator -= FPS60;
+		
+		//This should only happen a fixed number of times per second to make sure it always functions the same
+		ResolveCollisions();
 	}
 	
 	// DebugPrintF("deltaTime is %f \n the number is %i \n", accumulator, 2);
@@ -700,6 +700,10 @@ void DX11PhysicsFramework::Update()
 
 void DX11PhysicsFramework::ResolveCollisions()
 {
+	for (int i = 0; i <= gameObjectsToCheck; i++)
+	{ //This needs to be separate to stop gameobjects that are colliding being flagged as not
+		_gameObjects[i]->GetPhysicsModel()->isCurrentlyColliding(false);
+	}
 	for (int i = 0; i <= gameObjectsToCheck; i++)
 	{
 		Transform* objectATransform = _gameObjects[i]->GetTransform();
@@ -824,6 +828,10 @@ void DX11PhysicsFramework::ResolveCollisions()
 					objectA->ApplyImpulse((inverseMassA * impulse));
 					// Apply impulse vector according to inverse mass ratio, reversed
 					objectB->ApplyImpulse(-((inverseMassB * impulse)));
+					
+					//These two objects are colliding, so add friction
+					objectA->isCurrentlyColliding(true);
+					objectB->isCurrentlyColliding(true);
 				}
 			}
 		}

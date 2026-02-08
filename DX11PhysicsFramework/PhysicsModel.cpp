@@ -16,13 +16,17 @@ void PhysicsModel::Update(float deltaTime)
 {
     Vector3 position = _transform->GetPosition();
     
-        if (_simulateGravity)
-        {
-            _netForce += GravityForce();
-        }
+    if (_simulateGravity)
+    {
+        _netForce += GravityForce();
+    }
     
-    //Need to get proper logic in here for when colliding with something, currently friction applies all the time
-    _netForce += FrictionForce();
+    if (_colliding)
+    {
+        //Need to get proper logic in here for when colliding with something, currently friction applies all the time
+        _netForce += FrictionForce();
+    }
+    
     
     _netForce += DragForce();
     if (_mass != 0) //catch on 0 mass to prevent NaN errors
