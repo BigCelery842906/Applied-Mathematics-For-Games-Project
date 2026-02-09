@@ -54,7 +54,7 @@ Vector3 PhysicsModel::DragForce()
     
     // //Negating
     // velocity *= -1;
-    // //Normalising
+    // //Normalising to get direction
     // velocity.Normalize();
     // // velocity.x *= velocity.x;
     // // velocity.y *= velocity.y;
@@ -63,7 +63,7 @@ Vector3 PhysicsModel::DragForce()
     // //Multiply by scalar
     // velocity *= _dragCoefficient * _crossSectionalArea * _density * 0.5;
     
-    float floatValues = 0.5 * _density * _dragCoefficient * _crossSectionalArea * -1;
+    float floatValues = _density * _dragCoefficient * _crossSectionalArea * -1;
     velocity = Vector3 (velocity.x * floatValues, velocity.y * floatValues, velocity.z * floatValues);
     
     return velocity;
@@ -72,7 +72,7 @@ Vector3 PhysicsModel::DragForce()
 Vector3 PhysicsModel::FrictionForce()
 {
     // F(f) = u(k) * F(n);
-    float u = 1.05; // Frictional Coefficient according to sam - Changes depending on surfaces involved
+    float u = 1.5; // Frictional Coefficient according to sam - Changes depending on surfaces involved
     return u * DragForce();
 }
 

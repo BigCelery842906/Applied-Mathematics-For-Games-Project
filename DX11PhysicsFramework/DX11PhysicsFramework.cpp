@@ -398,7 +398,6 @@ HRESULT DX11PhysicsFramework::InitVertexIndexBuffers()
 	return S_OK;
 }
 
-
 HRESULT DX11PhysicsFramework::InitPipelineStates()
 {
 	HRESULT hr = S_OK;
@@ -614,14 +613,14 @@ void DX11PhysicsFramework::Update()
 	
 	if (GetAsyncKeyState('Q') & 0x0001)
 	{
-		currentSelectedGameobject += numOfCubes;
+		currentSelectedGameobject += gameObjectsToCheck;
 		currentSelectedGameobject--;
-		currentSelectedGameobject %= numOfCubes;
+		currentSelectedGameobject %= gameObjectsToCheck;
 	}
 	if (GetAsyncKeyState('E') & 0x0001)
 	{
 		currentSelectedGameobject++;
-		currentSelectedGameobject %= numOfCubes;
+		currentSelectedGameobject %= gameObjectsToCheck;
 	}
 	if (GetAsyncKeyState('W'))
 	{
