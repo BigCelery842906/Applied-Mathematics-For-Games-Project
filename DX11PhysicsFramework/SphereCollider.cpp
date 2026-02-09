@@ -1,7 +1,4 @@
-﻿#include "BoxCollider.h"
-#include "SphereCollider.h"
-#include "PlaneCollider.h"
-#include "Debug.h"
+﻿#include "SphereCollider.h"
 
 bool SphereCollider::CollidesWith(SphereCollider& other)
 {
@@ -13,7 +10,6 @@ bool SphereCollider::CollidesWith(SphereCollider& other)
         DebugPrintF("Collision from sphereObject \n");
         return true ;
     }
-    
     return false;
 }
 

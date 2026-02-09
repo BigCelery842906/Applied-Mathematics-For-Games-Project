@@ -1,6 +1,5 @@
 ﻿#include "Appearance.h"
 
-
 Appearance::Appearance(Geometry newGeometry, Material newMaterial)
 {
     _geometry = newGeometry;

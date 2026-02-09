@@ -1,10 +1,5 @@
 #include "DX11PhysicsFramework.h"
 
-#include "BoxCollider.h"
-#include "SphereCollider.h"
-#include "PlaneCollider.h"
-
-
 #define FPS60 1.0f/60.0f
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -89,7 +84,7 @@ HRESULT DX11PhysicsFramework::Initialise(HINSTANCE hInstance, int nShowCmd)
 
 HRESULT DX11PhysicsFramework::CreateWindowHandle(HINSTANCE hInstance, int nCmdShow)
 {
-	const wchar_t* windowName = L"DX11Framework";
+	const wchar_t* windowName = L"DX11 Physics Framework - Collisions work please and play nice";
 
 	WNDCLASSW wndClass;
 	wndClass.style = 0;
@@ -618,7 +613,7 @@ void DX11PhysicsFramework::Update()
 	simpleCount += deltaTime;
 	
 	if (GetAsyncKeyState('Q') & 0x0001)
-	{ //Currently needs to be 4 because of cubes
+	{
 		currentSelectedGameobject += numOfCubes;
 		currentSelectedGameobject--;
 		currentSelectedGameobject %= numOfCubes;
@@ -652,10 +647,7 @@ void DX11PhysicsFramework::Update()
 	{
 		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddRelativeForce(Vector3(0,0,-1), Vector3(1,0,-1));		
 	}
-	
-	
-	// TODO: ADD INCREASE/DECREASE FOR ACCELERATION
-	
+	// MAYBE TODO: ADD INCREASE/DECREASE FOR MOVEMENT SPEED
 	
 	// Update camera
 	float angleAroundZ = XMConvertToRadians(_cameraOrbitAngleXZ);
@@ -677,31 +669,21 @@ void DX11PhysicsFramework::Update()
 	}
 	
 	//Timestep
-
-	float newDeltaTime = timer->GetDeltaTime();
 	
 	accumulator += timer->GetDeltaTime();
-	//OutputDebugStringA(std::to_string(accumulator).c_str());
 	while (accumulator >= FPS60)
-	{
-		// std::string acc = std::to_string(accumulator) + "\n ";
-		// std::string var = "While loop accumulator: " + acc;
-		//
-		// OutputDebugStringA(var.c_str());
-		
+	{		
 		accumulator -= FPS60;
 		
 		//This should only happen a fixed number of times per second to make sure it always functions the same
 		ResolveCollisions();
 	}
-	
-	// DebugPrintF("deltaTime is %f \n the number is %i \n", accumulator, 2);
 }
 
 void DX11PhysicsFramework::ResolveCollisions()
 {
 	for (int i = 0; i <= gameObjectsToCheck; i++)
-	{ //This needs to be separate to stop gameobjects that are colliding being flagged as not
+	{ // This needs to be separate to stop gameObjects that are colliding being flagged as not colliding
 		_gameObjects[i]->GetPhysicsModel()->isCurrentlyColliding(false);
 	}
 	for (int i = 0; i <= gameObjectsToCheck; i++)
@@ -710,7 +692,7 @@ void DX11PhysicsFramework::ResolveCollisions()
 		PhysicsModel* objectA = _gameObjects[i]->GetPhysicsModel();
 		
 		for (int j = i + 1; j <= gameObjectsToCheck; j++ )
-		{
+		{ // Don't check objects that are before it, they will already have been checked
 			Transform* objectBTransform = _gameObjects[j]->GetTransform();
 			PhysicsModel* objectB = _gameObjects[j]->GetPhysicsModel();
 			
@@ -734,11 +716,7 @@ void DX11PhysicsFramework::ResolveCollisions()
 				// Relative velocity between the two objects
 				Vector3 relativeVelocity = objectA->GetVelocity() - objectB->GetVelocity();
 					
-				// Get Colliders for both objects
-				
-				ColliderType objectAType =objectA->GetCollider()->GetColliderType();
-				ColliderType objectBType =objectB->GetCollider()->GetColliderType();
-				
+				// Get Collider sizes for both objects
 				Vector3 objectAColliderSize = objectA->GetColliderSize();
 				Vector3 objectBColliderSize = objectB->GetColliderSize();
 				
@@ -746,10 +724,9 @@ void DX11PhysicsFramework::ResolveCollisions()
 				float overlapY = (objectAColliderSize.y + objectBColliderSize.y) - absY;
 				float overlapZ = (objectAColliderSize.z + objectBColliderSize.z) - absZ;
 
-				// Find the axis of minimum overlap -> collision normal along that axis
-				float minOverlap = overlapX;
-				
-				int axis = 0;
+				// Find the axis of minimum overlap
+				float minOverlap = overlapX; // Assume x is smallest first
+				int axis = 0; 
 				if (overlapY < minOverlap)
 				{
 					minOverlap = overlapY; 
@@ -762,7 +739,7 @@ void DX11PhysicsFramework::ResolveCollisions()
 				}
 				
 				Vector3 collisionNormal(0, 0, 0);
-				switch (axis)
+				switch (axis) //This could probably be shortened 
 				{
 				case 0:
 					{
@@ -806,7 +783,7 @@ void DX11PhysicsFramework::ResolveCollisions()
 				float relVelAlongNormal = collisionNormal * relativeVelocity;
 				if (relVelAlongNormal < 0.0f) // If getting closer
 				{
-					// restitution (elasticity)
+					// restitution (elasticity) ie. How much energy is conserved over the collision
 					float restitution = 0.6f;
 
 					// impulse scalar
@@ -824,6 +801,7 @@ void DX11PhysicsFramework::ResolveCollisions()
 					objectBTransform->SetPosition(posB - correction * inverseMassB);
 					
 					// Now that the objects are not overlapping, apply the impulse to the objects
+					
 					// Apply impulse vector according to inverse mass ratio
 					objectA->ApplyImpulse((inverseMassA * impulse));
 					// Apply impulse vector according to inverse mass ratio, reversed

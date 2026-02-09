@@ -2,9 +2,6 @@
 #include <d3d11.h>
 #include "Structures.h"
 
-
-
-
 class Appearance
 {
 private:

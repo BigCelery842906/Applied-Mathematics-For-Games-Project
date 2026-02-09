@@ -1,6 +1,6 @@
 #include "GameObject.h"
 
-GameObject::GameObject(string type, Appearance* appearance, float mass) : _type(type), _appearance(appearance)
+GameObject::GameObject(string type, Appearance* appearance, float mass) : _appearance(appearance), _type(type)
 {
 	_parent = nullptr;
 	
@@ -24,13 +24,4 @@ void GameObject::Update(float deltaTime)
 	{
 		_localTransform->Update(deltaTime);
 	}
-	// static int x = 0;
-	//
-	// char sz[1024] = { 0 };
-	//
-	// sprintf_s(sz, "the number is %d \n", x);
-	//
-	// OutputDebugStringA(sz);
-	//
-	// x++;
 }

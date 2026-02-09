@@ -1,5 +1,4 @@
 ﻿#include "RigidBodyModel.h"
-
 #include "DX11PhysicsFramework.h"
 
 RigidBodyModel::RigidBodyModel(Transform* transform, float mass) : PhysicsModel(transform)
@@ -9,8 +8,6 @@ RigidBodyModel::RigidBodyModel(Transform* transform, float mass) : PhysicsModel(
         1, 0, 0, 
         0, 1, 0, 
         0, 0, 1);
-    
-    
 }
 
 void RigidBodyModel::Update(float deltaTime)
@@ -39,18 +36,13 @@ void RigidBodyModel::AddRelativeForce(Vector3 force, Vector3 posToApply)
             inertiaTensor._13 = valueToSet;
         }
     }
-    
-    PhysicsModel::AddRelativeForce(force, posToApply);
-    
-    // Cross product is  magnitude of A * magnitude of B * sin (angle between A and B) * n (unit vector at right angle to both A and B)
-    // vector / magnitude of vector = unit vector
-    
-    torque = crossProduct(posToApply, force);
+    torque = crossProduct(posToApply, force);    
 }
 
 Vector3 RigidBodyModel::crossProduct(Vector3 a, Vector3 b)
 {
-    Vector3 result;
+    Vector3 result = Vector3(0, 0, 0);
+    
     result.x = a.y * b.z - a.z * b.y;
     result.y = a.z * b.x - a.x * b.z;
     result.z = a.x * b.y - a.y * b.x;
@@ -59,16 +51,18 @@ Vector3 RigidBodyModel::crossProduct(Vector3 a, Vector3 b)
 
 void RigidBodyModel::calculateAngularVelocity(float deltaTime)
 {
-    XMMATRIX inertiaTensorMatrix = XMLoadFloat3x3(&inertiaTensor);
+    if (_mass == 0)
+    {
+        return;
+    }
     
+    XMMATRIX inertiaTensorMatrix = XMLoadFloat3x3(&inertiaTensor);
     XMMATRIX inverseInertiaMatrix = XMMatrixInverse(nullptr, inertiaTensorMatrix);
     
     XMFLOAT3 torqueV3 = { torque.x, torque.y, torque.z };
     XMVECTOR torqueVector = XMLoadFloat3(&torqueV3);
     
-    
     XMVECTOR angularAcceleration = XMVector3Transform(torqueVector, inverseInertiaMatrix);
-    
     XMFLOAT3 angularAccel;
     XMStoreFloat3(&angularAccel, angularAcceleration);
     angularVelocity += Vector3((angularAccel.x * deltaTime), (angularAccel.y * deltaTime), (angularAccel.z * deltaTime));
@@ -77,6 +71,7 @@ void RigidBodyModel::calculateAngularVelocity(float deltaTime)
     
     Quaternion omegaQ(0.0f, angularVelocity.x, angularVelocity.y, angularVelocity.z);
 
+    // TODO LOOK AT WHY NO WORK
     // q_dot = 0.5 * omega_quat * q
     Quaternion qDot = omegaQ * orientation;
 

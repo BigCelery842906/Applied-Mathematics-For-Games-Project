@@ -1,8 +1,12 @@
 ﻿#pragma once
 #include "Collider.h"
+#include "BoxCollider.h"
+#include "PlaneCollider.h"
+#include "Debug.h"
 
 class SphereCollider : public Collider
 {
+private:
     float _radius = 1.0f;
 public:
     SphereCollider(Transform* transform, float radius) : Collider(transform, TypeSphereCollider) { _radius = radius; }

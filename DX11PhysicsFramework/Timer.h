@@ -14,8 +14,8 @@ private:
 public:
     Timer();
     
-    float GetDeltaTime();
-    float GetRunTimeLength();
-    void Tick();
+    float GetDeltaTime() const { return deltaSeconds; }
+    float GetRunTimeLength() { return duration<float>(runTimeLength).count(); }
     
+    void Tick();
 };

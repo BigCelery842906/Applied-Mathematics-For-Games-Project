@@ -1,10 +1,5 @@
 ﻿#include "PhysicsModel.h"
 
-#include "Appearance.h"
-#include "BoxCollider.h"
-#include "PlaneCollider.h"
-#include "SphereCollider.h"
-
 PhysicsModel::PhysicsModel(Transform* transform, float mass)
 {
     _transform = transform;
@@ -14,30 +9,29 @@ PhysicsModel::PhysicsModel(Transform* transform, float mass)
 
 void PhysicsModel::Update(float deltaTime)
 {
+    if (_mass == 0)
+    { // Catch on 0 Mass to prevent any NaN errors
+        return;
+    }
     Vector3 position = _transform->GetPosition();
     
     if (_simulateGravity)
     {
         _netForce += GravityForce();
     }
-    
     if (_colliding)
     {
-        //Need to get proper logic in here for when colliding with something, currently friction applies all the time
         _netForce += FrictionForce();
     }
     
-    
     _netForce += DragForce();
-    if (_mass != 0) //catch on 0 mass to prevent NaN errors
-    {
-        _acceleration = _netForce / _mass;
-    }
+    _acceleration = _netForce / _mass;
     _velocity += _acceleration * deltaTime;
     
     position += _velocity * deltaTime;
     _transform->SetPosition(position);
     
+    //Reset forces and acceleration each frame
     _netForce = Vector3(0.0f, 0.0f, 0.0f);
     _acceleration = Vector3(0.0f, 0.0f, 0.0f);
 }
@@ -49,6 +43,7 @@ Vector3 PhysicsModel::GravityForce()
 
 Vector3 PhysicsModel::DragForce()
 {
+    // TODO CHECK WHETHER THIS IS CORRECT
     // Equation on sheet is this:
     // F(n) = 1/2 * p * v^2 * C(n) * A;
     //Which returns a float
@@ -57,16 +52,20 @@ Vector3 PhysicsModel::DragForce()
     //Create a copy of velocity
     Vector3 velocity = _velocity;
     
-    //Negating
-    velocity *= -1;
-    //Normalising
-    velocity.Normalize();
-    //Multiply by scalar
-    velocity *= _dragCoefficient;
+    // //Negating
+    // velocity *= -1;
+    // //Normalising
+    // velocity.Normalize();
+    // // velocity.x *= velocity.x;
+    // // velocity.y *= velocity.y;
+    // // velocity.z *= velocity.z;
+    //
+    // //Multiply by scalar
+    // velocity *= _dragCoefficient * _crossSectionalArea * _density * 0.5;
     
-    // float velocityMagnitude = velocity.Magnitude(); //Used if want to make it a float, then return velocityMagnitude
+    float floatValues = 0.5 * _density * _dragCoefficient * _crossSectionalArea * -1;
+    velocity = Vector3 (velocity.x * floatValues, velocity.y * floatValues, velocity.z * floatValues);
     
-    //return value
     return velocity;
 }
 
@@ -115,7 +114,6 @@ Vector3 PhysicsModel::GetColliderSize()
 void PhysicsModel::ApplyImpulse(Vector3 impulse)
 {
     _velocity += impulse;
-    
 }
 
 float PhysicsModel::GetInverseMass() const

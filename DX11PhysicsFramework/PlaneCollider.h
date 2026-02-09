@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include "Appearance.h"
 #include "Collider.h"
+#include "BoxCollider.h"
+#include "SphereCollider.h"
 
 class PlaneCollider : public Collider
 {
@@ -13,5 +14,4 @@ public:
     virtual bool CollidesWith(SphereCollider& other) override;
     virtual bool CollidesWith(BoxCollider& other) override;
     virtual bool CollidesWith(PlaneCollider& other) override;
-    
 };

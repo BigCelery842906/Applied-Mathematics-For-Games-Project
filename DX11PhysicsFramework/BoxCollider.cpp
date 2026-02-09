@@ -1,8 +1,4 @@
 ﻿#include "BoxCollider.h"
-#include "SphereCollider.h"
-#include "PlaneCollider.h"
-#include "Debug.h"
-#include <cmath>
 
 bool BoxCollider::CollidesWith(SphereCollider& other)
 {
@@ -23,7 +19,6 @@ bool BoxCollider::CollidesWith(SphereCollider& other)
     }
     
     return false;
-    
 }
 bool BoxCollider::CollidesWith(BoxCollider& other)
 {

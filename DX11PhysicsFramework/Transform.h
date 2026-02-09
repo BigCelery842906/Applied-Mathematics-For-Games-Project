@@ -1,9 +1,9 @@
 ﻿#pragma once
-
 #include <directxmath.h>
 #include "Quaternion.h"
 
 using namespace DirectX;
+
 class GameObject;
 
 class Transform

@@ -1,5 +1,9 @@
 ﻿#pragma once
+#include <cmath>
 #include "Collider.h"
+#include "SphereCollider.h"
+#include "PlaneCollider.h"
+#include "Debug.h"
 
 class BoxCollider : public Collider
 {

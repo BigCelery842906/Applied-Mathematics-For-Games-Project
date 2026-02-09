@@ -1,25 +1,26 @@
 #pragma once
-
 #include <directxmath.h>
-#include <d3d11_1.h>
 #include <string>
-
 #include "Transform.h"
 #include "Appearance.h"
-#include "ParticleModel.h"
-#include "PhysicsModel.h"
 #include "RigidBodyModel.h"
-#include "Structures.h"
+
 using namespace DirectX;
 using namespace std;
 
-
-
 class GameObject
 {
+private:
+	GameObject* _parent = nullptr;
+	Transform* _localTransform = nullptr;
+	Appearance* _appearance = nullptr;
+	RigidBodyModel* _rigidbodyModel = nullptr;
+	
+	string _type;
 public:
 	GameObject(string type, Appearance* _appearance, float mass = 1.0f);
 	~GameObject();
+	void Update(float deltaTime);
 
 	string GetType() const { return _type; }
 
@@ -29,16 +30,5 @@ public:
 	
 	void SetParent(GameObject * parent) { _parent = parent; }
 	GameObject* GetParent() { return _parent; }
-	
-	void Update(float deltaTime);
-
-private:
-	GameObject* _parent = nullptr;
-	Transform* _localTransform = nullptr;
-	Appearance* _appearance = nullptr;
-	RigidBodyModel* _rigidbodyModel = nullptr;
-	
-	string _type;
-		
 };
 
