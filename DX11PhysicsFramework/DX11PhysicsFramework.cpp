@@ -738,44 +738,11 @@ void DX11PhysicsFramework::ResolveCollisions()
 				}
 				
 				Vector3 collisionNormal(0, 0, 0);
-				switch (axis) //This could probably be shortened 
-				{
-				case 0:
-					{
-						if (diff.x < 0)
-						{
-							collisionNormal.x = -1;
-						}
-						else
-						{
-							collisionNormal.x = 1;
-						}
-						break;
-					}
-				case 1:
-					{ 
-						if (diff.y < 0)
-						{
-							collisionNormal.y = -1;
-						}
-						else
-						{
-							collisionNormal.y = 1;
-						}
-						break;
-					}
-				case 2:
-					{ 
-						if (diff.z < 0)
-						{
-							collisionNormal.z = -1;
-						}
-						else
-						{
-							collisionNormal.z = 1;
-						}
-						break;
-					}
+				switch (axis)
+				{ // If smaller than 0 set to -1, else set to 1
+				case 0: collisionNormal.x = diff.x < 0 ? -1 : 1; break;
+				case 1:	collisionNormal.y = diff.y < 0 ? -1 : 1; break;
+				case 2: collisionNormal.z = diff.z < 0 ? -1 : 1; break;
 				}
 
 				// Relative velocity along normal
