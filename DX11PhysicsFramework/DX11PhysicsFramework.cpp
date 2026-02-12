@@ -530,8 +530,8 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	for (auto i = 1; i < numOfCubes+1; i++)
 	{
 		gameObject = new GameObject("Cube " + i, CubeAppearance, i);
-		gameObject->GetTransform()->SetScale(1,1.5,1);
-		gameObject->GetTransform()->SetPosition(-2.0f + (2* i * 2.5f), 1.0f, 10.0f);
+		gameObject->GetTransform()->SetScale(1,1,1);
+		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 1.0f, 10.0f);
 		gameObject->GetTransform()->SetRotation(0.0f,0,0);
 		gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 		gameObject->GetPhysicsModel()->simulateGravity(true);
@@ -655,12 +655,14 @@ void DX11PhysicsFramework::Update()
 	if (GetAsyncKeyState('M'))
 	{
 		Vector3 curScale = _gameObjects[currentSelectedGameobject+1]->GetTransform()->GetScale();
-		curScale.x = curScale.x - 0.1f;
-		curScale.y = curScale.y - 0.1f;
-		curScale.z = curScale.z - 0.1f;
-		_gameObjects[currentSelectedGameobject+1]->GetTransform()->SetScale(curScale);
-		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->GetCollider()->SetColliderSize(curScale);
-	
+		if (curScale.x > 0.15)
+		{
+			curScale.x = curScale.x - 0.1f;
+			curScale.y = curScale.y - 0.1f;
+			curScale.z = curScale.z - 0.1f;
+			_gameObjects[currentSelectedGameobject+1]->GetTransform()->SetScale(curScale);
+			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->GetCollider()->SetColliderSize(curScale);
+		}
 	}
 	if (GetAsyncKeyState('P'))
 	{
