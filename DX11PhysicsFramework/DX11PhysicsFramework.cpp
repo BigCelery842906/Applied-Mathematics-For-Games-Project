@@ -527,16 +527,16 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	_gameObjects.push_back(gameObject);
 
 	Appearance* CubeAppearance = new Appearance(cubeGeometry, shinyMaterial);
-	for (auto i = 0; i < numOfCubes; i++)
+	for (auto i = 1; i < numOfCubes+1; i++)
 	{
-		gameObject = new GameObject("Cube " + i, CubeAppearance);
-		gameObject->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 1.0f, 10.0f);
-		gameObject->GetTransform()->SetRotation(90.0f,0,0);
+		gameObject = new GameObject("Cube " + i, CubeAppearance, i);
+		gameObject->GetTransform()->SetScale(1,1.5,1);
+		gameObject->GetTransform()->SetPosition(-2.0f + (2* i * 2.5f), 1.0f, 10.0f);
+		gameObject->GetTransform()->SetRotation(0.0f,0,0);
 		gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 		gameObject->GetPhysicsModel()->simulateGravity(true);
 		// SphereCollider* collider = new SphereCollider(gameObject->GetTransform(), 1);
-		BoxCollider* collider = new BoxCollider(gameObject->GetTransform(), Vector3 (1, 1, 1));
+		BoxCollider* collider = new BoxCollider(gameObject->GetTransform(), gameObject->GetTransform()->GetScale());
 		gameObject->GetPhysicsModel()->SetCollider(collider);
 		_gameObjects.push_back(gameObject);
 	}
@@ -642,6 +642,26 @@ void DX11PhysicsFramework::Update()
 	{
 		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 50, 0));;
 	}
+	if (GetAsyncKeyState('N'))
+	{
+		Vector3 curScale = _gameObjects[currentSelectedGameobject+1]->GetTransform()->GetScale();
+		curScale.x = curScale.x + 0.1f;
+		curScale.y = curScale.y + 0.1f;
+		curScale.z = curScale.z + 0.1f;
+		_gameObjects[currentSelectedGameobject+1]->GetTransform()->SetScale(curScale);
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->GetCollider()->SetColliderSize(curScale);
+	
+	}
+	if (GetAsyncKeyState('M'))
+	{
+		Vector3 curScale = _gameObjects[currentSelectedGameobject+1]->GetTransform()->GetScale();
+		curScale.x = curScale.x - 0.1f;
+		curScale.y = curScale.y - 0.1f;
+		curScale.z = curScale.z - 0.1f;
+		_gameObjects[currentSelectedGameobject+1]->GetTransform()->SetScale(curScale);
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->GetCollider()->SetColliderSize(curScale);
+	
+	}
 	if (GetAsyncKeyState('P'))
 	{
 		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddRelativeForce(Vector3(0,0,-1), Vector3(1,0,-1));		
@@ -743,6 +763,7 @@ void DX11PhysicsFramework::ResolveCollisions()
 				case 0: collisionNormal.x = diff.x < 0 ? -1 : 1; break;
 				case 1:	collisionNormal.y = diff.y < 0 ? -1 : 1; break;
 				case 2: collisionNormal.z = diff.z < 0 ? -1 : 1; break;
+				default: break;
 				}
 
 				// Relative velocity along normal

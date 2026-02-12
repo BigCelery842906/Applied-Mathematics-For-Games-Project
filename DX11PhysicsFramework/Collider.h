@@ -30,4 +30,6 @@ public:
     
     ColliderType GetColliderType() const {return _type;}
     
+    virtual void SetColliderSize(Vector3 newColliderSize) {}
+    
 };

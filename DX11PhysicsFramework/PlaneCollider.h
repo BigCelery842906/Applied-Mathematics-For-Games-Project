@@ -14,4 +14,6 @@ public:
     virtual bool CollidesWith(SphereCollider& other) override;
     virtual bool CollidesWith(BoxCollider& other) override;
     virtual bool CollidesWith(PlaneCollider& other) override;
+
+    virtual void SetColliderSize(Vector3 newColliderSize) override { _colliderSize = newColliderSize; }
 };

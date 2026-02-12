@@ -18,4 +18,6 @@ public:
     virtual bool CollidesWith(PlaneCollider& other) override;
 
     Vector3 GetColliderSize() const { return _colliderSize; }
+    
+    virtual void SetColliderSize(Vector3 newColliderSize) override { _colliderSize = newColliderSize; }
 };

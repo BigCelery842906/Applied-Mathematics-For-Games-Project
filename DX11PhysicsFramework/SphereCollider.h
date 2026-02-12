@@ -17,4 +17,6 @@ public:
     virtual bool CollidesWith(PlaneCollider& other) override;
     
     float GetRadius() const { return _radius; }
+
+    virtual void SetColliderSize(Vector3 newColliderSize) override { _radius = newColliderSize.x; }
 };
