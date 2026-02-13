@@ -703,6 +703,7 @@ void DX11PhysicsFramework::Update()
 
 void DX11PhysicsFramework::ResolveCollisions()
 {
+	CollisionManifold manifold = CollisionManifold();
 	for (int i = 0; i <= gameObjectsToCheck; i++)
 	{ // This needs to be separate to stop gameObjects that are colliding being flagged as not colliding
 		_gameObjects[i]->GetPhysicsModel()->isCurrentlyColliding(false);
@@ -717,7 +718,9 @@ void DX11PhysicsFramework::ResolveCollisions()
 			Transform* objectBTransform = _gameObjects[j]->GetTransform();
 			PhysicsModel* objectB = _gameObjects[j]->GetPhysicsModel();
 			
-			if (objectA->IsCollideable() && objectB->IsCollideable() && objectA->GetCollider()->CollidesWith(*objectB->GetCollider()))
+			manifold = CollisionManifold();
+			
+			if (objectA->IsCollideable() && objectB->IsCollideable() && objectA->GetCollider()->CollidesWith(*objectB->GetCollider(), manifold))
 			{
 				// Assign Positions into variables
 				Vector3 posA = objectATransform->GetPosition();
@@ -737,6 +740,8 @@ void DX11PhysicsFramework::ResolveCollisions()
 				// Relative velocity between the two objects
 				Vector3 relativeVelocity = objectA->GetVelocity() - objectB->GetVelocity();
 					
+				Vector3 collisionNormal = manifold.collisionNormal;
+				
 				// Get Collider sizes for both objects
 				Vector3 objectAColliderSize = objectA->GetColliderSize();
 				Vector3 objectBColliderSize = objectB->GetColliderSize();
@@ -759,7 +764,7 @@ void DX11PhysicsFramework::ResolveCollisions()
 					axis = 2;
 				}
 				
-				Vector3 collisionNormal(0, 0, 0);
+				// Vector3 collisionNormal(0, 0, 0);
 				switch (axis)
 				{ // If smaller than 0 set to -1, else set to 1
 				case 0: collisionNormal.x = diff.x < 0 ? -1 : 1; break;
@@ -782,7 +787,7 @@ void DX11PhysicsFramework::ResolveCollisions()
 					Vector3 impulse = collisionNormal * J;
 
 					// Positional correction
-					float correctionMag = minOverlap / combinedInverseMass;
+					float correctionMag = manifold.points[0].penetrationDepth / combinedInverseMass;
 					Vector3 correction = collisionNormal * correctionMag;
 
 					// Move objects out of overlap according to inverse mass ratio

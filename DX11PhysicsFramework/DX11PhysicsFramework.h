@@ -12,6 +12,7 @@
 #include "BoxCollider.h"
 #include "SphereCollider.h"
 #include "PlaneCollider.h"
+#include <algorithm>
 
 using namespace DirectX;
 
