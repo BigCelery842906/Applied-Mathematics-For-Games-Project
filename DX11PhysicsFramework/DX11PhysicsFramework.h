@@ -78,6 +78,7 @@ private:
     int currentSelectedGameobject = 0;
     int numOfCubes = 4;
     int gameObjectsToCheck = numOfCubes + 1;
+    float tolerance = 0.001f;
 
 private:
     HRESULT CreateWindowHandle(HINSTANCE hInstance, int nCmdShow);

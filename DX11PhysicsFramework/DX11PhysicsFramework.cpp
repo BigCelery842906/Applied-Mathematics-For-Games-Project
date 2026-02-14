@@ -717,7 +717,8 @@ void DX11PhysicsFramework::ResolveCollisions()
 			Transform* objectBTransform = _gameObjects[j]->GetTransform();
 			PhysicsModel* objectB = _gameObjects[j]->GetPhysicsModel();
 			
-			if (objectA->IsCollideable() && objectB->IsCollideable() && objectA->GetCollider()->CollidesWith(*objectB->GetCollider()))
+			Vector3 pointOfContact = Vector3();
+			if (objectA->IsCollideable() && objectB->IsCollideable() && objectA->GetCollider()->CollidesWith(*objectB->GetCollider(), pointOfContact))
 			{
 				// Assign Positions into variables
 				Vector3 posA = objectATransform->GetPosition();
@@ -784,7 +785,7 @@ void DX11PhysicsFramework::ResolveCollisions()
 					// Positional correction
 					float correctionMag = minOverlap / combinedInverseMass;
 					Vector3 correction = collisionNormal * correctionMag;
-
+					
 					// Move objects out of overlap according to inverse mass ratio
 					objectATransform->SetPosition(posA + correction * inverseMassA);
 					objectBTransform->SetPosition(posB - correction * inverseMassB);

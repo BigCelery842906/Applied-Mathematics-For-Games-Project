@@ -21,10 +21,10 @@ class Collider abstract
 public:
     Collider(Transform* transform, ColliderType type = TypeCollider) {_transform = transform; _type = type; }
     
-    virtual bool CollidesWith(Collider& other) = 0;
-    virtual bool CollidesWith(SphereCollider& other) = 0;
-    virtual bool CollidesWith(BoxCollider& other) = 0;
-    virtual bool CollidesWith(PlaneCollider& other) = 0;
+    virtual bool CollidesWith(Collider& other, Vector3& poc) = 0;
+    virtual bool CollidesWith(SphereCollider& other, Vector3& poc) = 0;
+    virtual bool CollidesWith(BoxCollider& other, Vector3& poc) = 0;
+    virtual bool CollidesWith(PlaneCollider& other, Vector3& poc) = 0;
     
     Vector3 GetPosition() const {return _transform->GetPosition();}
     

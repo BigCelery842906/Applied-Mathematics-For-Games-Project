@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <cstring>
 #include <d3d11.h>
 #include <directxmath.h>
@@ -73,3 +74,11 @@ struct Material
 	XMFLOAT4 ambient;
 	XMFLOAT4 specular;
 };
+
+static float Clamp(float valToClamp, float min, float max)
+{
+	valToClamp = (std::max)(valToClamp, min);
+	valToClamp = (std::min)(valToClamp, max);
+
+	return valToClamp;
+}

@@ -28,6 +28,10 @@ void PhysicsModel::Update(float deltaTime)
     _acceleration = _netForce / _mass;
     _velocity += _acceleration * deltaTime;
     
+    if (_velocity.Magnitude() < tolerance)
+    {
+        _velocity = Vector3(0, 0, 0);
+    }
     position += _velocity * deltaTime;
     _transform->SetPosition(position);
     

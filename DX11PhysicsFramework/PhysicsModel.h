@@ -27,6 +27,8 @@ protected:
     
     Collider* _collider = nullptr;
     
+    float tolerance = 0.001f;
+    
 public:
     PhysicsModel(Transform* transform, float mass = 1.0f);
     virtual void Update(float deltaTime);

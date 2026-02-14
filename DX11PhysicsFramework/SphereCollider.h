@@ -11,10 +11,10 @@ private:
 public:
     SphereCollider(Transform* transform, float radius) : Collider(transform, TypeSphereCollider) { _radius = radius; }
     
-    virtual bool CollidesWith(Collider& other) override { return other.CollidesWith(*this); }
-    virtual bool CollidesWith(SphereCollider& other) override;
-    virtual bool CollidesWith(BoxCollider& other) override;
-    virtual bool CollidesWith(PlaneCollider& other) override;
+    virtual bool CollidesWith(Collider& other, Vector3& poc) override { return other.CollidesWith(*this, poc); }
+    virtual bool CollidesWith(SphereCollider& other, Vector3& poc) override;
+    virtual bool CollidesWith(BoxCollider& other, Vector3& poc) override;
+    virtual bool CollidesWith(PlaneCollider& other, Vector3& poc) override;
     
     float GetRadius() const { return _radius; }
 
