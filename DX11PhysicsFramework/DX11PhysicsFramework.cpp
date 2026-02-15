@@ -551,6 +551,14 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	gameObject->GetPhysicsModel()->SetCollider(collider);
 	_gameObjects.push_back(gameObject);
 	
+	Appearance* particleAppearance = new Appearance(cubeGeometry, shinyMaterial);
+	gameObject = new GameObject("Particle Emitter", particleAppearance);
+	gameObject->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	gameObject->GetTransform()->SetPosition(-5.0f, 0.5f, 10.0f);
+	gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
+	// gameObject->Set
+	_gameObjects.push_back(gameObject);
+	
 	timer = new Timer();
 	
 	return S_OK;

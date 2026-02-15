@@ -20,5 +20,18 @@ void ParticleModel::Update(float deltaTime)
         Reset();
     }
     
+    if (_simulateGravity)
+    {
+        _netForce += GravityForce();
+    }
+    
     PhysicsModel::Update(deltaTime);
+}
+
+void ParticleModel::SpawnParticle()
+{
+    if (curParticle < maxNumOfParticles)
+    {
+        
+    }
 }
