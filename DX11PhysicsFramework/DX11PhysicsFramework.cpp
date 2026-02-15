@@ -529,7 +529,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	Appearance* CubeAppearance = new Appearance(cubeGeometry, shinyMaterial);
 	for (auto i = 1; i < numOfCubes+1; i++)
 	{
-		gameObject = new GameObject("Cube " + i, CubeAppearance, i);
+		gameObject = new GameObject("Cube " + i, CubeAppearance);
 		gameObject->GetTransform()->SetScale(1,1,1);
 		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 1.0f, 10.0f);
 		gameObject->GetTransform()->SetRotation(0.0f,0,0);
