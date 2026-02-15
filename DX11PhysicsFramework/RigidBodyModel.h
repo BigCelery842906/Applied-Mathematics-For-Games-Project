@@ -14,6 +14,7 @@ public:
     void Update(float deltaTime) override;
     
     virtual void AddRelativeForce(Vector3 force, Vector3 posToApply) override;
+    virtual void ApplyRelativeImpulse(Vector3 force, Vector3 point) override;
     Vector3 crossProduct(Vector3 a, Vector3 b);
     
     Vector3 GetAngularVelocity() const { return angularVelocity; }

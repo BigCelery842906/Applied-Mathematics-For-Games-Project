@@ -27,6 +27,9 @@ protected:
     
     Collider* _collider = nullptr;
     
+    float tolerance = 0.001f;
+   
+    
 public:
     PhysicsModel(Transform* transform, float mass = 1.0f);
     virtual void Update(float deltaTime);
@@ -52,4 +55,6 @@ public:
     
     void ApplyImpulse(Vector3 impulse);
     virtual void AddRelativeForce(Vector3 force, Vector3 posToApply) {};
+    virtual void ApplyRelativeImpulse(Vector3 force, Vector3 point) {};
+    
 };

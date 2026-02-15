@@ -66,6 +66,7 @@ Vector3 PhysicsModel::DragForce()
     float floatValues = _density * _dragCoefficient * _crossSectionalArea * -1;
     velocity = Vector3 (velocity.x * floatValues, velocity.y * floatValues, velocity.z * floatValues);
     
+    //return value
     return velocity;
 }
 

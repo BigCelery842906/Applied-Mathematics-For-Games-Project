@@ -38,7 +38,7 @@ public:
     Vector3 GetRotation() const { return MakeEulerAnglesFromQ(_orientation); }
     
     //Orientation
-    void SetOrientation(Quaternion rotation) { _orientation = rotation; }
+    void SetOrientation(Quaternion newOrientation) { _orientation = newOrientation; }
     
     Quaternion GetOrientation() const { return _orientation; }
 
