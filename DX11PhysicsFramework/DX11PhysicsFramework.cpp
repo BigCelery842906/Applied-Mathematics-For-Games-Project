@@ -749,10 +749,10 @@ void DX11PhysicsFramework::Update()
 	//OutputDebugStringA(std::to_string(accumulator).c_str());
 	while (accumulator >= FPS60)
 	{
-		std::string acc = std::to_string(accumulator) + "\n ";
-		std::string var = "While loop accumulator: " + acc;
+		// std::string acc = std::to_string(accumulator) + "\n ";
+		// std::string var = "While loop accumulator: " + acc;
 
-		OutputDebugStringA(var.c_str());
+		// OutputDebugStringA(var.c_str());
 		
 		accumulator -= FPS60;
 	}
