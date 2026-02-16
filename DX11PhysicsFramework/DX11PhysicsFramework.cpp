@@ -555,8 +555,8 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	
 	Appearance* particleAppearance = new Appearance(cubeGeometry, shinyMaterial);
 	GameObject* particleEmitter = new GameObject("Particle Emitter", particleAppearance);
-	particleEmitter->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-	particleEmitter->GetTransform()->SetPosition(-5.0f, 0.5f, 10.0f);
+	particleEmitter->GetTransform()->SetScale(0.5f, 0.5f, 0.5f);
+	particleEmitter->GetTransform()->SetPosition(-2.5f, 0.5f, 15.0f);
 	particleEmitter->GetAppearance()->SetTextureRV(_StoneTextureRV);
 	ParticleModel* particleModel = new ParticleModel(particleEmitter->GetTransform(), 2.0f, Vector3(0.5,0.5,0.5), false);
 	particleEmitter->SetPhysicsModel(particleModel);

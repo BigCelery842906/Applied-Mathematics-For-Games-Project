@@ -9,11 +9,17 @@ ParticleModel::ParticleModel(Transform* transform, float resetTime, Vector3 pert
     _pertubation = pertubation;
     _applyGravity = applyGravity;
     _invertGravity = invertGravity;
+
+	_particles.reserve(maxNumOfParticles); // Reserve space for all potential particles
 }
 
 void ParticleModel::Reset()
 {
     // Reset Logic here
+	_particles.clear();
+	curParticleCount = 0;
+	emissionAccumulator = 0.0f;
+	_aliveTime = 0.0f;
 }
 
 void ParticleModel::Update(float deltaTime)
@@ -37,6 +43,10 @@ void ParticleModel::Update(float deltaTime)
         if (particle.lifeTime <= 0.0f)
         {
             //Kill particle
+			// std::remove_if combined with erase to remove dead particles
+			// beginning of vector, end of vector, function that returns true if particle is dead
+            // https://www.geeksforgeeks.org/cpp/std-remove-if-algorithm-in-cpp-stl/
+            //_particles.erase
         }
     }
 }
