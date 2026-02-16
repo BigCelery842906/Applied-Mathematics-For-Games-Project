@@ -77,7 +77,7 @@ private:
 
     int currentSelectedGameobject = 0;
     int numOfCubes = 4;
-    int gameObjectsToCheck = numOfCubes + 1;
+    int gameObjectsToCheck = 9;
     float tolerance = 0.001f;
 
 private:

@@ -502,6 +502,14 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	planeGeometry.numberOfIndices = 6;
 	planeGeometry.vertexBufferOffset = 0;
 	planeGeometry.vertexBufferStride = sizeof(SimpleVertex);
+	
+	Geometry sphereGeometry;
+	_objMeshData = OBJLoader::Load("Resources\\OBJ\\sphere.obj", _device);
+	sphereGeometry.indexBuffer = _objMeshData.IndexBuffer;
+	sphereGeometry.numberOfIndices = _objMeshData.IndexCount;
+	sphereGeometry.vertexBuffer = _objMeshData.VertexBuffer;
+	sphereGeometry.vertexBufferOffset = _objMeshData.VBOffset;
+	sphereGeometry.vertexBufferStride = _objMeshData.VBStride;
 
 	Material shinyMaterial;
 	shinyMaterial.ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -529,7 +537,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	Appearance* CubeAppearance = new Appearance(cubeGeometry, shinyMaterial);
 	for (auto i = 1; i < numOfCubes+1; i++)
 	{
-		gameObject = new GameObject("Cube " + i, CubeAppearance);
+		gameObject = new GameObject("Cube " + i, CubeAppearance, i);
 		gameObject->GetTransform()->SetScale(1,1,1);
 		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 1.0f, 10.0f);
 		gameObject->GetTransform()->SetRotation(0.0f,0,0);
@@ -537,6 +545,21 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 		gameObject->GetPhysicsModel()->simulateGravity(true);
 		// SphereCollider* collider = new SphereCollider(gameObject->GetTransform(), 1);
 		BoxCollider* collider = new BoxCollider(gameObject->GetTransform(), gameObject->GetTransform()->GetScale());
+		gameObject->GetPhysicsModel()->SetCollider(collider);
+		_gameObjects.push_back(gameObject);
+	}
+	
+	Appearance* SphereAppearance = new Appearance(sphereGeometry, shinyMaterial);
+	for (auto i = 1; i < numOfCubes+1; i++)
+	{
+		gameObject = new GameObject("Sphere " + i, SphereAppearance);
+		gameObject->GetTransform()->SetScale(1,1,1);
+		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 10.0f, 9.0f);
+		gameObject->GetTransform()->SetRotation(0.0f,0,0);
+		gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
+		gameObject->GetPhysicsModel()->simulateGravity(true);
+		SphereCollider* collider = new SphereCollider(gameObject->GetTransform(), 1);
+		// BoxCollider* collider = new BoxCollider(gameObject->GetTransform(), gameObject->GetTransform()->GetScale());
 		gameObject->GetPhysicsModel()->SetCollider(collider);
 		_gameObjects.push_back(gameObject);
 	}
