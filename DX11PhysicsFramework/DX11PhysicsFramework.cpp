@@ -611,6 +611,7 @@ void DX11PhysicsFramework::Update()
 	static float simpleCount = 0.0f;
 	simpleCount += deltaTime;
 	
+#pragma region Cube Select
 	if (GetAsyncKeyState('Q') & 0x0001)
 	{
 		currentSelectedGameobject += gameObjectsToCheck;
@@ -622,6 +623,27 @@ void DX11PhysicsFramework::Update()
 		currentSelectedGameobject++;
 		currentSelectedGameobject %= gameObjectsToCheck;
 	}
+	if (GetAsyncKeyState('1'))
+	{
+		currentSelectedGameobject = 0;
+	}
+	if (GetAsyncKeyState('2'))
+	{
+		currentSelectedGameobject = 1;
+	}
+	if (GetAsyncKeyState('3'))
+	{
+		currentSelectedGameobject = 2;
+	}
+	if (GetAsyncKeyState('4'))
+	{
+		currentSelectedGameobject = 3;
+	}
+	if (GetAsyncKeyState('5'))
+	{
+		currentSelectedGameobject = 4;
+	}
+#pragma endregion 
 	if (GetAsyncKeyState('W'))
 	{
 		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 0, 5));
@@ -638,9 +660,13 @@ void DX11PhysicsFramework::Update()
 	{
 		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(5, 0, 0));
 	}
-	if (GetAsyncKeyState('Z'))
+	if (GetAsyncKeyState(VK_SPACE))
 	{
 		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 50, 0));;
+	}
+	if (GetAsyncKeyState(VK_CONTROL))
+	{
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, -50, 0));;
 	}
 	if (GetAsyncKeyState('N'))
 	{
