@@ -760,12 +760,12 @@ void DX11PhysicsFramework::ResolveCollisions()
 	{
 		Transform* objectATransform = _gameObjects[i]->GetTransform();
 		PhysicsModel* objectA = _gameObjects[i]->GetPhysicsModel();
-		
-		for (int j = i + 1; j <= gameObjectsToCheck; j++ )
+
+		for (int j = i + 1; j <= gameObjectsToCheck; j++)
 		{ // Don't check objects that are before it, they will already have been checked
 			Transform* objectBTransform = _gameObjects[j]->GetTransform();
 			PhysicsModel* objectB = _gameObjects[j]->GetPhysicsModel();
-			
+
 			Vector3 pointOfContact = Vector3();
 			if (objectA->IsCollideable() && objectB->IsCollideable() && objectA->GetCollider()->CollidesWith(*objectB->GetCollider(), pointOfContact))
 			{
@@ -773,49 +773,109 @@ void DX11PhysicsFramework::ResolveCollisions()
 				Vector3 posA = objectATransform->GetPosition();
 				Vector3 posB = objectBTransform->GetPosition();
 				Vector3 diff = posA - posB;
-				
+
 				// Absolute distances on each axis				
 				float absX = abs(diff.x);
 				float absY = abs(diff.y);
 				float absZ = abs(diff.z);
-				
+
 				// Compute inverse masses
 				float inverseMassA = objectA->GetInverseMass();
-				float inverseMassB = objectB->GetInverseMass(); 
+				float inverseMassB = objectB->GetInverseMass();
 				float combinedInverseMass = inverseMassA + inverseMassB;
 
 				// Relative velocity between the two objects
 				Vector3 relativeVelocity = objectA->GetVelocity() - objectB->GetVelocity();
-					
-				// Get Collider sizes for both objects
-				Vector3 objectAColliderSize = objectA->GetColliderSize();
-				Vector3 objectBColliderSize = objectB->GetColliderSize();
 				
-				float overlapX = (objectAColliderSize.x + objectBColliderSize.x) - absX;
-				float overlapY = (objectAColliderSize.y + objectBColliderSize.y) - absY;
-				float overlapZ = (objectAColliderSize.z + objectBColliderSize.z) - absZ;
-
-				// Find the axis of minimum overlap
-				float minOverlap = overlapX; // Assume x is smallest first
-				int axis = 0; 
-				if (overlapY < minOverlap)
-				{
-					minOverlap = overlapY; 
-					axis = 1;
-				}
-				if (overlapZ < minOverlap)
-				{
-					minOverlap = overlapZ; 
-					axis = 2;
-				}
-				
+				//Define here so each variation can set it
 				Vector3 collisionNormal(0, 0, 0);
-				switch (axis)
-				{ // If smaller than 0 set to -1, else set to 1
-				case 0: collisionNormal.x = diff.x < 0 ? -1 : 1; break;
-				case 1:	collisionNormal.y = diff.y < 0 ? -1 : 1; break;
-				case 2: collisionNormal.z = diff.z < 0 ? -1 : 1; break;
-				default: break;
+				float minOverlap;
+				
+				// THIS IS WHAT NEEDS TO BE CHANGED TO SUPPORT DIFFERENT COLLIDER TYPES, FOR NOW IT ASSUMES THEY ARE BOTH BOX COLLIDERS
+				// Get Collider sizes for both objects
+				SphereCollider* sphereColliderA = dynamic_cast<SphereCollider*>(objectA->GetCollider());
+				SphereCollider* sphereColliderB = dynamic_cast<SphereCollider*>(objectB->GetCollider());
+
+				if (sphereColliderA && sphereColliderB)
+				{ // SPHERE SPHERE					
+					// Position correction to prevent overlap
+					
+					collisionNormal = diff;
+					collisionNormal.Normalize();
+					
+					float radius1 = 0;
+					float radius2 = 0;
+				
+					if (sphereColliderA) { radius1 = sphereColliderA->GetRadius(); }
+					if (sphereColliderB) { radius2 = sphereColliderB->GetRadius(); }
+				
+					float overlapDepth = (radius1 + radius2) - (diff).Magnitude(); // positive when overlapping
+					minOverlap = overlapDepth;
+					if (overlapDepth > 0.0f)
+					{
+						float correctionMag = overlapDepth / (combinedInverseMass);
+
+						Vector3 correction = collisionNormal * correctionMag;
+					
+						// Move objects out of overlap according to inverse mass ratio
+						objectATransform->SetPosition(posA + correction * inverseMassA);
+						objectBTransform->SetPosition(posB - correction * inverseMassB);
+					}
+				}
+				else if (!sphereColliderA ^ !sphereColliderB)
+				{ // AABB and Sphere
+					DebugPrintF("Collision between different collider types not supported yet");
+					
+					SphereCollider* sphere;
+					
+					if (sphereColliderA)
+					{
+						sphere = sphereColliderA;
+					}
+					else if (sphereColliderB)
+					{
+						sphere = sphereColliderB;
+					}
+					else
+					{
+						DebugPrintF("No valid sphere found, this should not have entered");
+						break;
+					}
+					
+					
+					
+				}
+				else //if (!sphereColliderA && !sphereColliderB)
+				{ // NEITHER ARE SPHERES ( AKA BOX BOX)
+					Vector3 objectAColliderSize = objectA->GetColliderSize();
+					Vector3 objectBColliderSize = objectB->GetColliderSize();
+
+					float overlapX = (objectAColliderSize.x + objectBColliderSize.x) - absX;
+					float overlapY = (objectAColliderSize.y + objectBColliderSize.y) - absY;
+					float overlapZ = (objectAColliderSize.z + objectBColliderSize.z) - absZ;
+
+					// Find the axis of minimum overlap
+					minOverlap = overlapX; // Assume x is smallest first
+					int axis = 0;
+					if (overlapY < minOverlap)
+					{
+						minOverlap = overlapY;
+						axis = 1;
+					}
+					if (overlapZ < minOverlap)
+					{
+						minOverlap = overlapZ;
+						axis = 2;
+					}
+
+					
+					switch (axis)
+					{ // If smaller than 0 set to -1, else set to 1
+					case 0: collisionNormal.x = diff.x < 0 ? -1 : 1; break;
+					case 1:	collisionNormal.y = diff.y < 0 ? -1 : 1; break;
+					case 2: collisionNormal.z = diff.z < 0 ? -1 : 1; break;
+					default: break;
+					}
 				}
 
 				// Relative velocity along normal
@@ -834,18 +894,18 @@ void DX11PhysicsFramework::ResolveCollisions()
 					// Positional correction
 					float correctionMag = minOverlap / combinedInverseMass;
 					Vector3 correction = collisionNormal * correctionMag;
-					
+
 					// Move objects out of overlap according to inverse mass ratio
 					objectATransform->SetPosition(posA + correction * inverseMassA);
 					objectBTransform->SetPosition(posB - correction * inverseMassB);
-					
+
 					// Now that the objects are not overlapping, apply the impulse to the objects
-					
+
 					// Apply impulse vector according to inverse mass ratio
 					objectA->ApplyImpulse((inverseMassA * impulse));
 					// Apply impulse vector according to inverse mass ratio, reversed
 					objectB->ApplyImpulse(-((inverseMassB * impulse)));
-					
+
 					//These two objects are colliding, so add friction
 					objectA->isCurrentlyColliding(true);
 					objectB->isCurrentlyColliding(true);
@@ -857,17 +917,17 @@ void DX11PhysicsFramework::ResolveCollisions()
 
 void DX11PhysicsFramework::Draw()
 {
-    //
-    // Clear buffers
-    //
+	//
+	// Clear buffers
+	//
 	float ClearColor[4] = { 0.25f, 0.25f, 0.75f, 1.0f }; // red,green,blue,alpha
 	_immediateContext->OMSetRenderTargets(1, &_frameBufferView, _depthBufferView);
-    _immediateContext->ClearRenderTargetView(_frameBufferView, ClearColor);
+	_immediateContext->ClearRenderTargetView(_frameBufferView, ClearColor);
 	_immediateContext->ClearDepthStencilView(_depthBufferView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-    //
-    // Setup buffers and render scene
-    //
+	//
+	// Setup buffers and render scene
+	//
 	_immediateContext->VSSetShader(_vertexShader, nullptr, 0);
 	_immediateContext->PSSetShader(_pixelShader, nullptr, 0);
 
@@ -883,7 +943,7 @@ void DX11PhysicsFramework::Draw()
 
 	_cbData.View = XMMatrixTranspose(view);
 	_cbData.Projection = XMMatrixTranspose(projection);
-	
+
 	_cbData.light = basicLight;
 	_cbData.EyePosW = _camera->GetPosition();
 
@@ -922,8 +982,9 @@ void DX11PhysicsFramework::Draw()
 		gameObject->GetAppearance()->Draw(_immediateContext);
 	}
 
-    //
-    // Present our back buffer to our front buffer
-    //
-    _swapChain->Present(0, 0);
+	//
+	// Present our back buffer to our front buffer
+	//
+	_swapChain->Present(0, 0);
 }
+		
