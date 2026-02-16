@@ -554,7 +554,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	{
 		gameObject = new GameObject("Sphere " + i, SphereAppearance);
 		gameObject->GetTransform()->SetScale(1,1,1);
-		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 10.0f, 9.0f);
+		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 1.0f, 5.0f);
 		gameObject->GetTransform()->SetRotation(0.0f,0,0);
 		gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 		gameObject->GetPhysicsModel()->simulateGravity(true);
@@ -803,38 +803,31 @@ void DX11PhysicsFramework::ResolveCollisions()
 					collisionNormal = diff;
 					collisionNormal.Normalize();
 					
-					float radius1 = 0;
-					float radius2 = 0;
-				
-					if (sphereColliderA) { radius1 = sphereColliderA->GetRadius(); }
-					if (sphereColliderB) { radius2 = sphereColliderB->GetRadius(); }
+					float radius1 = sphereColliderA->GetRadius(); 
+					float radius2 = sphereColliderB->GetRadius(); 
 				
 					float overlapDepth = (radius1 + radius2) - (diff).Magnitude(); // positive when overlapping
 					minOverlap = overlapDepth;
-					if (overlapDepth > 0.0f)
-					{
-						float correctionMag = overlapDepth / (combinedInverseMass);
-
-						Vector3 correction = collisionNormal * correctionMag;
-					
-						// Move objects out of overlap according to inverse mass ratio
-						objectATransform->SetPosition(posA + correction * inverseMassA);
-						objectBTransform->SetPosition(posB - correction * inverseMassB);
-					}
 				}
 				else if (!sphereColliderA ^ !sphereColliderB)
 				{ // AABB and Sphere
 					DebugPrintF("Collision between different collider types not supported yet");
 					
-					SphereCollider* sphere;
+					SphereCollider* sphereCollider;
+					BoxCollider* boxCollider;
+					bool sphereIsA;
 					
 					if (sphereColliderA)
 					{
-						sphere = sphereColliderA;
+						sphereCollider = sphereColliderA;
+						boxCollider = dynamic_cast<BoxCollider*>(objectB->GetCollider());
+						sphereIsA = true;
 					}
 					else if (sphereColliderB)
 					{
-						sphere = sphereColliderB;
+						sphereCollider = sphereColliderB;
+						boxCollider = dynamic_cast<BoxCollider*>(objectA->GetCollider());
+						sphereIsA = false;
 					}
 					else
 					{
@@ -843,9 +836,36 @@ void DX11PhysicsFramework::ResolveCollisions()
 					}
 					
 					
+					Vector3 spherePosition = sphereCollider->GetPosition();
+					Vector3 closestPoint = pointOfContact;
+					Vector3 sphereDistToPoint = spherePosition - closestPoint;
+					float distance = sphereDistToPoint.Magnitude();
+					float radius = sphereCollider->GetRadius();
+					
+					if (distance > tolerance)
+					{
+						collisionNormal = sphereDistToPoint/distance;
+					}
+					else
+					{
+						collisionNormal = diff;
+						collisionNormal.Normalize();
+						distance = 0.0f;
+					}
+					
+					if (!sphereIsA)
+					{
+						collisionNormal = -collisionNormal;
+					}
+					
+					minOverlap = radius - distance;
+					if (minOverlap <= 0.0f)
+						continue;
+					
+					
 					
 				}
-				else //if (!sphereColliderA && !sphereColliderB)
+				else if (!sphereColliderA && !sphereColliderB)
 				{ // NEITHER ARE SPHERES ( AKA BOX BOX)
 					Vector3 objectAColliderSize = objectA->GetColliderSize();
 					Vector3 objectBColliderSize = objectB->GetColliderSize();
@@ -878,7 +898,43 @@ void DX11PhysicsFramework::ResolveCollisions()
 					}
 				}
 
-				// Relative velocity along normal
+				
+					// Positional correction
+					float correctionMag = minOverlap / combinedInverseMass;
+					Vector3 correction = collisionNormal * correctionMag;
+
+					// // Move objects out of overlap according to inverse mass ratio
+					// objectATransform->SetPosition(posA + correction * inverseMassA);
+					// objectBTransform->SetPosition(posB - correction * inverseMassB);
+				
+				if (!sphereColliderA ^ !sphereColliderB)
+				{
+					// Only move the sphere
+					if (sphereColliderA)
+					{
+						objectATransform->SetPosition(
+							posA + collisionNormal * minOverlap
+						);
+					}
+					else
+					{
+						objectBTransform->SetPosition(
+							posB + collisionNormal * minOverlap
+						);
+					}
+				}
+				else
+				{
+					// Box–box or sphere–sphere: split correction by mass
+					float correctionMag = minOverlap / combinedInverseMass;
+					Vector3 correction = collisionNormal * correctionMag;
+
+					objectATransform->SetPosition(posA + correction * inverseMassA);
+					objectBTransform->SetPosition(posB - correction * inverseMassB);
+				}
+				
+				
+				// Relative velocity along normala 
 				float relVelAlongNormal = collisionNormal * relativeVelocity;
 				if (relVelAlongNormal < 0.0f) // If getting closer
 				{
@@ -891,20 +947,12 @@ void DX11PhysicsFramework::ResolveCollisions()
 
 					Vector3 impulse = collisionNormal * J;
 
-					// Positional correction
-					float correctionMag = minOverlap / combinedInverseMass;
-					Vector3 correction = collisionNormal * correctionMag;
-
-					// Move objects out of overlap according to inverse mass ratio
-					objectATransform->SetPosition(posA + correction * inverseMassA);
-					objectBTransform->SetPosition(posB - correction * inverseMassB);
-
 					// Now that the objects are not overlapping, apply the impulse to the objects
 
 					// Apply impulse vector according to inverse mass ratio
-					objectA->ApplyImpulse((inverseMassA * impulse));
+					objectA->ApplyImpulse(inverseMassA * impulse);
 					// Apply impulse vector according to inverse mass ratio, reversed
-					objectB->ApplyImpulse(-((inverseMassB * impulse)));
+					objectB->ApplyImpulse(-(inverseMassB * impulse));
 
 					//These two objects are colliding, so add friction
 					objectA->isCurrentlyColliding(true);
