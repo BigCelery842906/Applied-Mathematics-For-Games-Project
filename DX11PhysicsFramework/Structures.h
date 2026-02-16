@@ -3,6 +3,8 @@
 #include <d3d11.h>
 #include <directxmath.h>
 
+#include "Vector3.h"
+
 using namespace DirectX;
 
 struct SurfaceInfo
@@ -72,4 +74,14 @@ struct Material
 	XMFLOAT4 diffuse;
 	XMFLOAT4 ambient;
 	XMFLOAT4 specular;
+};
+
+struct Particle
+{
+	Vector3 position;
+	Vector3 velocity;
+	Vector3 acceleration;
+	
+	float lifeTime;
+	float maxLifeTime;
 };

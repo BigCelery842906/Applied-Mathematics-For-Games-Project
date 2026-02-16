@@ -14,11 +14,12 @@ private:
 	GameObject* _parent = nullptr;
 	Transform* _localTransform = nullptr;
 	Appearance* _appearance = nullptr;
-	RigidBodyModel* _rigidbodyModel = nullptr;
+	PhysicsModel* _PhysicsModel = nullptr;
 	
 	string _type;
 public:
 	GameObject(string type, Appearance* _appearance, float mass = 1.0f);
+	GameObject(string type, Appearance* _appearance, PhysicsModel* physicsModel);
 	~GameObject();
 	void Update(float deltaTime);
 
@@ -26,7 +27,9 @@ public:
 
 	Transform* GetTransform() { return _localTransform; }
 	Appearance* GetAppearance() { return _appearance; }
-	RigidBodyModel* GetPhysicsModel() { return _rigidbodyModel; }
+	PhysicsModel* GetPhysicsModel() { return _PhysicsModel; }
+	
+	void SetPhysicsModel(PhysicsModel* physicsModel) { _PhysicsModel = physicsModel; } 
 	
 	void SetParent(GameObject * parent) { _parent = parent; }
 	GameObject* GetParent() { return _parent; }
