@@ -543,7 +543,6 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 		gameObject->GetTransform()->SetRotation(0.0f,0,0);
 		gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 		gameObject->GetPhysicsModel()->simulateGravity(true);
-		// SphereCollider* collider = new SphereCollider(gameObject->GetTransform(), 1);
 		BoxCollider* collider = new BoxCollider(gameObject->GetTransform(), gameObject->GetTransform()->GetScale());
 		gameObject->GetPhysicsModel()->SetCollider(collider);
 		_gameObjects.push_back(gameObject);
@@ -554,12 +553,11 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	{
 		gameObject = new GameObject("Sphere " + i, SphereAppearance);
 		gameObject->GetTransform()->SetScale(1,1,1);
-		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 1.0f, 5.0f);
+		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 10.0f, 8.5f);
 		gameObject->GetTransform()->SetRotation(0.0f,0,0);
 		gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 		gameObject->GetPhysicsModel()->simulateGravity(true);
 		SphereCollider* collider = new SphereCollider(gameObject->GetTransform(), 1);
-		// BoxCollider* collider = new BoxCollider(gameObject->GetTransform(), gameObject->GetTransform()->GetScale());
 		gameObject->GetPhysicsModel()->SetCollider(collider);
 		_gameObjects.push_back(gameObject);
 	}
@@ -810,60 +808,65 @@ void DX11PhysicsFramework::ResolveCollisions()
 					minOverlap = overlapDepth;
 				}
 				else if (!sphereColliderA ^ !sphereColliderB)
-				{ // AABB and Sphere
-					DebugPrintF("Collision between different collider types not supported yet");
-					
-					SphereCollider* sphereCollider;
-					BoxCollider* boxCollider;
+				{
+					// Identify sphere and box
+					SphereCollider* sphere;
+					BoxCollider* box;
 					bool sphereIsA;
-					
+
 					if (sphereColliderA)
 					{
-						sphereCollider = sphereColliderA;
-						boxCollider = dynamic_cast<BoxCollider*>(objectB->GetCollider());
+						sphere = sphereColliderA;
+						box = static_cast<BoxCollider*>(objectB->GetCollider());
 						sphereIsA = true;
 					}
-					else if (sphereColliderB)
+					else
 					{
-						sphereCollider = sphereColliderB;
-						boxCollider = dynamic_cast<BoxCollider*>(objectA->GetCollider());
+						sphere = sphereColliderB;
+						box = static_cast<BoxCollider*>(objectA->GetCollider());
 						sphereIsA = false;
 					}
+
+					Vector3 spherePos = sphere->GetPosition();
+					Vector3 boxPos = box->GetPosition();
+					Vector3 halfExtents = box->GetColliderSize();
+
+					// Closest point on box to sphere center
+					Vector3 closestPoint;
+					closestPoint.x = (std::max)(boxPos.x - halfExtents.x, (std::min)(spherePos.x, boxPos.x + halfExtents.x));
+					closestPoint.y = (std::max)(boxPos.y - halfExtents.y, (std::min)(spherePos.y, boxPos.y + halfExtents.y));
+					closestPoint.z = (std::max)(boxPos.z - halfExtents.z, (std::min)(spherePos.z, boxPos.z + halfExtents.z));
+
+					Vector3 sphereToClosestPoint = spherePos - closestPoint;
+					float distance = sphereToClosestPoint.Magnitude();
+					float radius = sphere->GetRadius();
+
+					if (distance == 0.0f)
+					{
+						// Sphere center is inside the box → push out along largest axis
+						Vector3 boxToSphere = spherePos - boxPos;
+
+						float px = halfExtents.x - abs(boxToSphere.x);
+						float py = halfExtents.y - abs(boxToSphere.y);
+						float pz = halfExtents.z - abs(boxToSphere.z);
+
+						if (px < py && px < pz)
+							collisionNormal = Vector3(boxToSphere.x < 0 ? -1 : 1, 0, 0);
+						else if (py < pz)
+							collisionNormal = Vector3(0, boxToSphere.y < 0 ? -1 : 1, 0);
+						else
+							collisionNormal = Vector3(0, 0, boxToSphere.z < 0 ? -1 : 1);
+
+						minOverlap = radius;
+					}
 					else
 					{
-						DebugPrintF("No valid sphere found, this should not have entered");
-						break;
+						collisionNormal = sphereToClosestPoint / distance;
+						minOverlap = radius - distance;
 					}
-					
-					
-					Vector3 spherePosition = sphereCollider->GetPosition();
-					Vector3 closestPoint = pointOfContact;
-					Vector3 sphereDistToPoint = spherePosition - closestPoint;
-					float distance = sphereDistToPoint.Magnitude();
-					float radius = sphereCollider->GetRadius();
-					
-					if (distance > tolerance)
-					{
-						collisionNormal = sphereDistToPoint/distance;
-					}
-					else
-					{
-						collisionNormal = diff;
-						collisionNormal.Normalize();
-						distance = 0.0f;
-					}
-					
+
 					if (!sphereIsA)
-					{
 						collisionNormal = -collisionNormal;
-					}
-					
-					minOverlap = radius - distance;
-					if (minOverlap <= 0.0f)
-						continue;
-					
-					
-					
 				}
 				else if (!sphereColliderA && !sphereColliderB)
 				{ // NEITHER ARE SPHERES ( AKA BOX BOX)
@@ -903,36 +906,8 @@ void DX11PhysicsFramework::ResolveCollisions()
 					float correctionMag = minOverlap / combinedInverseMass;
 					Vector3 correction = collisionNormal * correctionMag;
 
-					// // Move objects out of overlap according to inverse mass ratio
-					// objectATransform->SetPosition(posA + correction * inverseMassA);
-					// objectBTransform->SetPosition(posB - correction * inverseMassB);
-				
-				if (!sphereColliderA ^ !sphereColliderB)
-				{
-					// Only move the sphere
-					if (sphereColliderA)
-					{
-						objectATransform->SetPosition(
-							posA + collisionNormal * minOverlap
-						);
-					}
-					else
-					{
-						objectBTransform->SetPosition(
-							posB + collisionNormal * minOverlap
-						);
-					}
-				}
-				else
-				{
-					// Box–box or sphere–sphere: split correction by mass
-					float correctionMag = minOverlap / combinedInverseMass;
-					Vector3 correction = collisionNormal * correctionMag;
-
 					objectATransform->SetPosition(posA + correction * inverseMassA);
-					objectBTransform->SetPosition(posB - correction * inverseMassB);
-				}
-				
+					objectBTransform->SetPosition(posB - correction * inverseMassB);				
 				
 				// Relative velocity along normala 
 				float relVelAlongNormal = collisionNormal * relativeVelocity;
