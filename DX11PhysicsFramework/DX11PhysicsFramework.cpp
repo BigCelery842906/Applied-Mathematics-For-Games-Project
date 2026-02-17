@@ -689,7 +689,7 @@ void DX11PhysicsFramework::Update()
 	{
 		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, -50, 0));;
 	}
-	if (GetAsyncKeyState('N'))
+	if (GetAsyncKeyState('M'))
 	{
 		Vector3 curScale = _gameObjects[currentSelectedGameobject+1]->GetTransform()->GetScale();
 		curScale.x = curScale.x + 0.1f;
@@ -699,7 +699,7 @@ void DX11PhysicsFramework::Update()
 		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->GetCollider()->SetColliderSize(curScale);
 	
 	}
-	if (GetAsyncKeyState('M'))
+	if (GetAsyncKeyState('N'))
 	{
 		Vector3 curScale = _gameObjects[currentSelectedGameobject+1]->GetTransform()->GetScale();
 		if (curScale.x > 0.15)
