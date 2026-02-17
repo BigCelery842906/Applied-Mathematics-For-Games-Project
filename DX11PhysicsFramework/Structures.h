@@ -4,6 +4,8 @@
 #include <d3d11.h>
 #include <directxmath.h>
 
+#include "Vector3.h"
+
 using namespace DirectX;
 
 struct SurfaceInfo
@@ -75,6 +77,16 @@ struct Material
 	XMFLOAT4 specular;
 };
 
+struct Particle
+{
+	Vector3 position;
+	Vector3 velocity;
+	Vector3 acceleration;
+	
+	float lifeTime;
+	float maxLifeTime;
+};
+
 static float Clamp(float valToClamp, float min, float max)
 {
 	valToClamp = (std::max)(valToClamp, min);
@@ -82,3 +94,4 @@ static float Clamp(float valToClamp, float min, float max)
 
 	return valToClamp;
 }
+

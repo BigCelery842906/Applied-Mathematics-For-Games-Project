@@ -6,7 +6,16 @@ GameObject::GameObject(string type, Appearance* appearance, float mass) : _appea
 	
 	_localTransform = new Transform(this);
 	
-	_rigidbodyModel = new RigidBodyModel(_localTransform, mass);
+	_PhysicsModel = new RigidBodyModel(_localTransform, mass);
+}
+
+GameObject::GameObject(string type, Appearance* appearance, PhysicsModel* physicsModel) : _appearance(appearance), _type(type)
+{
+	_parent = nullptr;
+	
+	_localTransform = new Transform(this);
+	
+	_PhysicsModel = physicsModel;
 }
 
 GameObject::~GameObject()
@@ -16,9 +25,9 @@ GameObject::~GameObject()
 
 void GameObject::Update(float deltaTime)
 {
-	if (_rigidbodyModel)
+	if (_PhysicsModel)
 	{
-		_rigidbodyModel->Update(deltaTime);
+		_PhysicsModel->Update(deltaTime);
 	}
 	if (_localTransform)
 	{

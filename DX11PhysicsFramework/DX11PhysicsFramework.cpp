@@ -1,5 +1,7 @@
 #include "DX11PhysicsFramework.h"
 
+#include "ParticleModel.h"
+
 #define FPS60 1.0f/60.0f
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -523,7 +525,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 
 	Appearance* FloorAppearance = new Appearance(planeGeometry, noSpecMaterial);
 	
-	GameObject* gameObject = new GameObject("Floor", FloorAppearance, 0);
+	GameObject* gameObject = new GameObject("Floor", FloorAppearance, 0.0f);
 	gameObject->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
 	gameObject->GetTransform()->SetScale(15.0f, 15.0f, 15.0f);
 	gameObject->GetTransform()->SetRotation(90.0f,0,0);
@@ -571,6 +573,15 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	collider = new BoxCollider(gameObject->GetTransform(), Vector3 (1, 0.25, 1));
 	gameObject->GetPhysicsModel()->SetCollider(collider);
 	_gameObjects.push_back(gameObject);
+	
+	Appearance* particleAppearance = new Appearance(cubeGeometry, shinyMaterial);
+	GameObject* particleEmitter = new GameObject("Particle Emitter", particleAppearance);
+	particleEmitter->GetTransform()->SetScale(0.5f, 0.5f, 0.5f);
+	particleEmitter->GetTransform()->SetPosition(-2.5f, 0.5f, 15.0f);
+	particleEmitter->GetAppearance()->SetTextureRV(_StoneTextureRV);
+	ParticleModel* particleModel = new ParticleModel(particleEmitter->GetTransform(), 2.0f, Vector3(0.5,0.5,0.5), false);
+	particleEmitter->SetPhysicsModel(particleModel);
+	_gameObjects.push_back(particleEmitter);
 	
 	timer = new Timer();
 	
