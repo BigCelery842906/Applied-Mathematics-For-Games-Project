@@ -713,7 +713,7 @@ void DX11PhysicsFramework::Update()
 	}
 	if (GetAsyncKeyState('P'))
 	{
-		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddRelativeForce(Vector3(0,0,-1), Vector3(1,0,-1));		
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddRelativeForce(Vector3(5,5,0), Vector3(1,0,-1));		
 	}
 	// MAYBE TODO: ADD INCREASE/DECREASE FOR MOVEMENT SPEED
 	
