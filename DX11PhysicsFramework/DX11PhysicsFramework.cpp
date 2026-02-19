@@ -575,11 +575,13 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	_gameObjects.push_back(gameObject);
 	
 	Appearance* particleEmitterAppearance = new Appearance(cubeGeometry, shinyMaterial);
+	particleEmitterAppearance->SetTextureRV(_StoneTextureRV);
 	Appearance* particleAppearance = new Appearance(cubeGeometry, shinyMaterial);
+	particleAppearance->SetTextureRV(_StoneTextureRV);
+	
 	GameObject* particleEmitter = new GameObject("Particle Emitter", particleEmitterAppearance);
 	particleEmitter->GetTransform()->SetScale(0.5f, 0.5f, 0.5f);
 	particleEmitter->GetTransform()->SetPosition(-2.5f, 0.5f, 15.0f);
-	particleEmitter->GetAppearance()->SetTextureRV(_StoneTextureRV);
 	ParticleModel* particleModel = new ParticleModel(particleEmitter->GetTransform(), particleAppearance, this, 2.0f, Vector3(0.5,0.5,0.5), false);
 	particleEmitter->SetPhysicsModel(particleModel);
 	_gameObjects.push_back(particleEmitter);
@@ -777,6 +779,11 @@ void DX11PhysicsFramework::Update()
 	for (auto gameObject : _gameObjects)
 	{
 		gameObject->Update(deltaTime);
+	}
+	
+	for (auto particle : _particles)
+	{
+		particle->Update(deltaTime);
 	}
 	
 	//Timestep
@@ -1090,7 +1097,7 @@ void DX11PhysicsFramework::Draw()
 
 void DX11PhysicsFramework::PushParticles(std::vector<GameObject>& particles)
 {
-	for (int i = 0; i < particles.capacity(); i++)
+	for (size_t i = 0; i < particles.size(); i++)
 	{
 		_particles.push_back(&particles[i]);
 	}

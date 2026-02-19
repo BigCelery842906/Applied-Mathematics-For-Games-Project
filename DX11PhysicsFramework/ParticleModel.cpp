@@ -54,15 +54,6 @@ void ParticleModel::Update(float deltaTime)
     }
 }
 
-
-// Appearance* particleAppearance = new Appearance(cubeGeometry, shinyMaterial);
-// GameObject* particleEmitter = new GameObject("Particle Emitter", particleAppearance);
-// particleEmitter->GetTransform()->SetScale(0.5f, 0.5f, 0.5f);
-// particleEmitter->GetTransform()->SetPosition(-2.5f, 0.5f, 15.0f);
-// particleEmitter->GetAppearance()->SetTextureRV(_StoneTextureRV);
-// ParticleModel* particleModel = new ParticleModel(particleEmitter->GetTransform(), 2.0f, Vector3(0.5,0.5,0.5), false);
-// particleEmitter->SetPhysicsModel(particleModel);
-// _gameObjects.push_back(particleEmitter);
 void ParticleModel::EmitParticle()
 {
    
@@ -81,34 +72,35 @@ void ParticleModel::SpawnParticles(DX11PhysicsFramework* particlePush)
 {
     for (int i = 0; i < maxNumOfParticles; i++)
     {
-        GameObject* particle = new GameObject("Particle", _appearance);
-        particle->GetTransform()->SetPosition(_transform->GetPosition());
+        GameObject particle("Particle", _appearance);
+        particle.GetTransform()->SetPosition(_transform->GetPosition());
         
         Vector3 randomDirection = RandomVectorInRange(_pertubation);
         randomDirection.Normalize();
-        particle->GetPhysicsModel()->SetForceApply(false);
-        particle->GetPhysicsModel()->SetVelocity(randomDirection * initialParticleSpeed);
+        particle.GetPhysicsModel()->SetForceApply(false);
+        particle.GetPhysicsModel()->SetVelocity(randomDirection * initialParticleSpeed);
         if (_applyGravity)
         {
             if (_invertGravity)
             {
-                particle->GetPhysicsModel()->SetAcceleration(-GravityForce());
+                particle.GetPhysicsModel()->SetAcceleration(-GravityForce());
             }
             else
             {
-                particle->GetPhysicsModel()->SetAcceleration(GravityForce());
+                particle.GetPhysicsModel()->SetAcceleration(GravityForce());
             }
         }
         else
         {
-            particle->GetPhysicsModel()->SetAcceleration(Vector3());
+            particle.GetPhysicsModel()->SetAcceleration(Vector3());
         }
         //
         // particle.lifeTime = _resetTime;
         // particle.maxLifeTime = _resetTime;
-        
-        _particles.push_back(*particle);
+
+        // Move the locally-created particle into the vector
+        _particles.push_back(std::move(particle));
     }
-    
+
     particlePush->PushParticles(_particles);
 }
