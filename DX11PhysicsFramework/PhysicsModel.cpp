@@ -14,18 +14,20 @@ void PhysicsModel::Update(float deltaTime)
         return;
     }
     Vector3 position = _transform->GetPosition();
-    
-    if (_simulateGravity)
+    if (_applyForces)
     {
-        _netForce += GravityForce();
-    }
-    if (_colliding)
-    {
-        _netForce += FrictionForce();
-    }
+        if (_simulateGravity)
+        {
+            _netForce += GravityForce();
+        }
+        if (_colliding)
+        {
+            _netForce += FrictionForce();
+        }
     
-    _netForce += DragForce();
-    _acceleration = _netForce / _mass;
+        _netForce += DragForce();
+        _acceleration = _netForce / _mass;
+    }
     _velocity += _acceleration * deltaTime;
     
     if (_velocity.Magnitude() < tolerance)

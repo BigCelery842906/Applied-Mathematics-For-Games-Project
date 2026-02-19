@@ -29,6 +29,8 @@ protected:
     
     float tolerance = 0.001f;
     
+    bool _applyForces = true;
+    
 public:
     PhysicsModel(Transform* transform, float mass = 1.0f);
     virtual void Update(float deltaTime);
@@ -49,6 +51,11 @@ public:
     
     
     Vector3 GetVelocity() const { return _velocity; }
+    void SetVelocity(Vector3 velocity) { _velocity = velocity; }
+    
+    Vector3 GetAcceleration() const { return _acceleration; }
+    void SetAcceleration(Vector3 acceleration) { _acceleration = acceleration; }
+    
     float GetMass() const { return _mass; }
     float GetInverseMass() const;
     
@@ -56,4 +63,5 @@ public:
     virtual void AddRelativeForce(Vector3 force, Vector3 posToApply) {};
     virtual void ApplyRelativeImpulse(Vector3 force, Vector3 point) {};
     
+    void SetForceApply(bool value) { _applyForces = value; }
 };

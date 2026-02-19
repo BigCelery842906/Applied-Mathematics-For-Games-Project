@@ -79,6 +79,8 @@ private:
     int numOfCubes = 4;
     int gameObjectsToCheck = 9;
     float tolerance = 0.001f;
+    
+    vector<GameObject*> _particles;
 
 private:
     HRESULT CreateWindowHandle(HINSTANCE hInstance, int nCmdShow);
@@ -98,4 +100,6 @@ public:
     void Update();
     void ResolveCollisions();
     void Draw();
+    
+    void PushParticles(vector<GameObject>& particles);
 };

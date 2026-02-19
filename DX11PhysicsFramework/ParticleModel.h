@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <vector>
 
+#include "Appearance.h"
+#include "DX11PhysicsFramework.h"
 #include "PhysicsModel.h"
 #include "Structures.h"
 
@@ -20,11 +22,12 @@ private:
     int maxNumOfParticles = 100;
     int curParticleCount = 0;
 
-    std::vector<Particle> _particles;
+    std::vector<GameObject> _particles;
+    Appearance* _appearance;
 
 public:
-    ParticleModel(Transform* transform) : PhysicsModel(transform) {};
-    ParticleModel(Transform* transform, float resetTime, Vector3 pertubation, bool applyGravity, bool invertGravity = false);
+    ParticleModel(Transform* transform, Appearance* particleAppearance, DX11PhysicsFramework* particlePush) : PhysicsModel(transform) {};
+    ParticleModel(Transform* transform, Appearance* particleAppearance, DX11PhysicsFramework* particlePush, float resetTime, Vector3 pertubation, bool applyGravity, bool invertGravity = false);
 
     void Reset();
     void Update(float deltaTime) override;
@@ -33,4 +36,7 @@ public:
     static Vector3 RandomVectorInRange(const Vector3& range);
     
     virtual void AddRelativeForce(Vector3 force, Vector3 posToApply) override { AddForce(force); }
+    
+    
+    void SpawnParticles(DX11PhysicsFramework* particlePush);
 };

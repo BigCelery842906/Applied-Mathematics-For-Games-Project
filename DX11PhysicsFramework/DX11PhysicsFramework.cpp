@@ -574,12 +574,13 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	gameObject->GetPhysicsModel()->SetCollider(collider);
 	_gameObjects.push_back(gameObject);
 	
+	Appearance* particleEmitterAppearance = new Appearance(cubeGeometry, shinyMaterial);
 	Appearance* particleAppearance = new Appearance(cubeGeometry, shinyMaterial);
-	GameObject* particleEmitter = new GameObject("Particle Emitter", particleAppearance);
+	GameObject* particleEmitter = new GameObject("Particle Emitter", particleEmitterAppearance);
 	particleEmitter->GetTransform()->SetScale(0.5f, 0.5f, 0.5f);
 	particleEmitter->GetTransform()->SetPosition(-2.5f, 0.5f, 15.0f);
 	particleEmitter->GetAppearance()->SetTextureRV(_StoneTextureRV);
-	ParticleModel* particleModel = new ParticleModel(particleEmitter->GetTransform(), 2.0f, Vector3(0.5,0.5,0.5), false);
+	ParticleModel* particleModel = new ParticleModel(particleEmitter->GetTransform(), particleAppearance, this, 2.0f, Vector3(0.5,0.5,0.5), false);
 	particleEmitter->SetPhysicsModel(particleModel);
 	_gameObjects.push_back(particleEmitter);
 	
@@ -1046,10 +1047,54 @@ void DX11PhysicsFramework::Draw()
 		// Draw object
 		gameObject->GetAppearance()->Draw(_immediateContext);
 	}
+	
+	for (auto particle : _particles)
+	{
+		// Get render material
+		Material material = particle->GetAppearance()->GetMaterial();
+
+		// Copy material to shader
+		_cbData.surface.AmbientMtrl = material.ambient;
+		_cbData.surface.DiffuseMtrl = material.diffuse;
+		_cbData.surface.SpecularMtrl = material.specular;
+
+		// Set world matrix
+		_cbData.World = XMMatrixTranspose(particle->GetTransform()->GetWorldMatrix());
+
+		// Set texture
+		if (particle->GetAppearance()->HasTexture())
+		{
+			_immediateContext->PSSetShaderResources(0, 1, particle->GetAppearance()->GetTextureRV());
+			_cbData.HasTexture = 1.0f;
+		}
+		else
+		{
+			_cbData.HasTexture = 0.0f;
+		}
+
+		//Write constant buffer data onto GPU
+		D3D11_MAPPED_SUBRESOURCE mappedSubresource;
+		_immediateContext->Map(_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
+		memcpy(mappedSubresource.pData, &_cbData, sizeof(_cbData));
+		_immediateContext->Unmap(_constantBuffer, 0);
+
+		// Draw object
+		particle->GetAppearance()->Draw(_immediateContext);
+	}
 
 	//
 	// Present our back buffer to our front buffer
 	//
 	_swapChain->Present(0, 0);
+}
+
+void DX11PhysicsFramework::PushParticles(std::vector<GameObject>& particles)
+{
+	for (int i = 0; i < particles.capacity(); i++)
+	{
+		_particles.push_back(&particles[i]);
+	}
+	
+	DebugPrintF("Pushed Particles");
 }
 		
