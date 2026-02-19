@@ -655,6 +655,7 @@ void DX11PhysicsFramework::Update()
 		currentSelectedGameobject++;
 		currentSelectedGameobject %= gameObjectsToCheck;
 	}
+#pragma region Cubes
 	if (GetAsyncKeyState('1'))
 	{
 		currentSelectedGameobject = 0;
@@ -671,11 +672,41 @@ void DX11PhysicsFramework::Update()
 	{
 		currentSelectedGameobject = 3;
 	}
+#pragma endregion
+	
+#pragma region Spheres
 	if (GetAsyncKeyState('5'))
 	{
 		currentSelectedGameobject = 4;
 	}
+	if (GetAsyncKeyState('6'))
+	{
+		currentSelectedGameobject = 5;
+	}
+	if (GetAsyncKeyState('7'))
+	{
+		currentSelectedGameobject = 6;
+	}
+	if (GetAsyncKeyState('8'))
+	{
+		currentSelectedGameobject = 7;
+	}
+#pragma endregion
+	
+#pragma region Donut
+	if (GetAsyncKeyState('9'))
+	{
+		currentSelectedGameobject = 8;
+	}
+#pragma endregion
+	
+#pragma region ParticleEmitter
+	if (GetAsyncKeyState('0'))
+	{
+		currentSelectedGameobject = 9;
+	}
 #pragma endregion 
+	
 	if (GetAsyncKeyState('W'))
 	{
 		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 0, 5));
@@ -701,7 +732,7 @@ void DX11PhysicsFramework::Update()
 		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, -50, 0));;
 	}
 	if (GetAsyncKeyState('M'))
-	{
+	{ // Enlarge Object
 		Vector3 curScale = _gameObjects[currentSelectedGameobject+1]->GetTransform()->GetScale();
 		curScale.x = curScale.x + 0.1f;
 		curScale.y = curScale.y + 0.1f;
@@ -711,7 +742,7 @@ void DX11PhysicsFramework::Update()
 	
 	}
 	if (GetAsyncKeyState('N'))
-	{
+	{ // Shrink Object
 		Vector3 curScale = _gameObjects[currentSelectedGameobject+1]->GetTransform()->GetScale();
 		if (curScale.x > 0.15)
 		{
