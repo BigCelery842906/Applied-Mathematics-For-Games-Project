@@ -77,16 +77,6 @@ struct Material
 	XMFLOAT4 specular;
 };
 
-struct Particle
-{
-	Vector3 position;
-	Vector3 velocity;
-	Vector3 acceleration;
-	
-	float lifeTime;
-	float maxLifeTime;
-};
-
 static float Clamp(float valToClamp, float min, float max)
 {
 	valToClamp = (std::max)(valToClamp, min);

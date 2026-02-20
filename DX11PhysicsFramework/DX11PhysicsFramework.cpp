@@ -574,6 +574,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	gameObject->GetPhysicsModel()->SetCollider(collider);
 	_gameObjects.push_back(gameObject);
 	
+	
 	Appearance* particleEmitterAppearance = new Appearance(cubeGeometry, shinyMaterial);
 	particleEmitterAppearance->SetTextureRV(_StoneTextureRV);
 	Appearance* particleAppearance = new Appearance(cubeGeometry, shinyMaterial);
@@ -584,6 +585,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	particleEmitter->GetTransform()->SetPosition(-2.5f, 0.5f, 15.0f);
 	ParticleModel* particleModel = new ParticleModel(particleEmitter->GetTransform(), particleAppearance, this, 2.0f, Vector3(0.5,0.5,0.5), false);
 	particleEmitter->SetPhysicsModel(particleModel);
+	_particleEmitter = particleModel;
 	_gameObjects.push_back(particleEmitter);
 	
 	timer = new Timer();
@@ -646,7 +648,7 @@ void DX11PhysicsFramework::Update()
 	static float simpleCount = 0.0f;
 	simpleCount += deltaTime;
 	
-#pragma region Cube Select
+#pragma region Object Select
 	if (GetAsyncKeyState('Q') & 0x0001)
 	{
 		currentSelectedGameobject += gameObjectsToCheck;
@@ -658,6 +660,8 @@ void DX11PhysicsFramework::Update()
 		currentSelectedGameobject++;
 		currentSelectedGameobject %= gameObjectsToCheck;
 	}
+#pragma endregion 
+	
 #pragma region Cubes
 	if (GetAsyncKeyState('1'))
 	{
@@ -703,95 +707,97 @@ void DX11PhysicsFramework::Update()
 	}
 #pragma endregion
 	
-#pragma region ParticleEmitter
-	if (GetAsyncKeyState('0'))
-	{
-		currentSelectedGameobject = 9;
-	}
-#pragma endregion 
 	
-	if (GetAsyncKeyState('W'))
-	{
-		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 0, 5));
-	}
-	if (GetAsyncKeyState('S'))
-	{
-		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 0, -5));
-	}
-	if (GetAsyncKeyState('A'))
-	{
-		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(-5, 0, 0));
-	}
-	if (GetAsyncKeyState('D'))
-	{
-		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(5, 0, 0));
-	}
-	if (GetAsyncKeyState(VK_SPACE))
-	{
-		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 50, 0));;
-	}
-	if (GetAsyncKeyState(VK_CONTROL))
-	{
-		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, -50, 0));;
-	}
-	if (GetAsyncKeyState('M'))
-	{ // Enlarge Object
-		Vector3 curScale = _gameObjects[currentSelectedGameobject+1]->GetTransform()->GetScale();
-		curScale.x = curScale.x + 0.1f;
-		curScale.y = curScale.y + 0.1f;
-		curScale.z = curScale.z + 0.1f;
-		_gameObjects[currentSelectedGameobject+1]->GetTransform()->SetScale(curScale);
-		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->GetCollider()->SetColliderSize(curScale);
-	
-	}
-	if (GetAsyncKeyState('N'))
-	{ // Shrink Object
-		Vector3 curScale = _gameObjects[currentSelectedGameobject+1]->GetTransform()->GetScale();
-		if (curScale.x > 0.15)
+		if (GetAsyncKeyState('W'))
 		{
-			curScale.x = curScale.x - 0.1f;
-			curScale.y = curScale.y - 0.1f;
-			curScale.z = curScale.z - 0.1f;
-			_gameObjects[currentSelectedGameobject+1]->GetTransform()->SetScale(curScale);
-			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->GetCollider()->SetColliderSize(curScale);
+			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 0, 5));
 		}
-	}
-	if (GetAsyncKeyState('P'))
-	{
-		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddRelativeForce(Vector3(5,5,0), Vector3(1,0,-1));		
-	}
-	// MAYBE TODO: ADD INCREASE/DECREASE FOR MOVEMENT SPEED
+		if (GetAsyncKeyState('S'))
+		{
+			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 0, -5));
+		}
+		if (GetAsyncKeyState('A'))
+		{
+			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(-5, 0, 0));
+		}
+		if (GetAsyncKeyState('D'))
+		{
+			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(5, 0, 0));
+		}
+		if (GetAsyncKeyState(VK_SPACE))
+		{
+			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 50, 0));;
+		}
+		if (GetAsyncKeyState(VK_CONTROL))
+		{
+			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, -50, 0));;
+		}
+		
+		if (GetAsyncKeyState('L'))
+		{
+			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddRelativeForce(Vector3(5,5,0), Vector3(1,0,-1));		
+		}
 	
-	// Update camera
-	float angleAroundZ = XMConvertToRadians(_cameraOrbitAngleXZ);
-
-	float x = _cameraOrbitRadius * cos(angleAroundZ);
-	float z = _cameraOrbitRadius * sin(angleAroundZ);
-
-	XMFLOAT3 cameraPos = _camera->GetPosition();
-	cameraPos.x = x;
-	cameraPos.z = z;
-
-	_camera->SetPosition(cameraPos);
-	_camera->Update();
-
-	// Update objects
-	for (auto gameObject : _gameObjects)
+	if (GetAsyncKeyState('P') & 0x0001)
 	{
-		gameObject->Update(deltaTime);
+		_particleEmitter->ToggleParticleSpawn();
 	}
+		// MAYBE TODO: ADD INCREASE/DECREASE FOR MOVEMENT SPEED
 	
-	for (auto particle : _particles)
-	{
-		particle->Update(deltaTime);
-	}
+		// Update camera
+		float angleAroundZ = XMConvertToRadians(_cameraOrbitAngleXZ);
+
+		float x = _cameraOrbitRadius * cos(angleAroundZ);
+		float z = _cameraOrbitRadius * sin(angleAroundZ);
+
+		XMFLOAT3 cameraPos = _camera->GetPosition();
+		cameraPos.x = x;
+		cameraPos.z = z;
+
+		_camera->SetPosition(cameraPos);
+		_camera->Update();
+
+		// Update objects
+		for (auto gameObject : _gameObjects)
+		{
+			gameObject->Update(deltaTime);
+		}
+	
+		for (auto particle : _particles)
+		{
+			particle->Update(deltaTime);
+		}
+	
 	
 	//Timestep
-	
 	accumulator += timer->GetDeltaTime();
 	while (accumulator >= FPS60)
-	{		
+	{	
+		
 		accumulator -= FPS60;
+		
+		if (GetAsyncKeyState('M'))
+		{ // Enlarge Object
+			Vector3 curScale = _gameObjects[currentSelectedGameobject+1]->GetTransform()->GetScale();
+			curScale.x = curScale.x + 0.1f;
+			curScale.y = curScale.y + 0.1f;
+			curScale.z = curScale.z + 0.1f;
+			_gameObjects[currentSelectedGameobject+1]->GetTransform()->SetScale(curScale);
+			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->GetCollider()->SetColliderSize(curScale);
+	
+		}
+		if (GetAsyncKeyState('N'))
+		{ // Shrink Object
+			Vector3 curScale = _gameObjects[currentSelectedGameobject+1]->GetTransform()->GetScale();
+			if (curScale.x > 0.15)
+			{
+				curScale.x = curScale.x - 0.1f;
+				curScale.y = curScale.y - 0.1f;
+				curScale.z = curScale.z - 0.1f;
+				_gameObjects[currentSelectedGameobject+1]->GetTransform()->SetScale(curScale);
+				_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->GetCollider()->SetColliderSize(curScale);
+			}
+		}
 		
 		//This should only happen a fixed number of times per second to make sure it always functions the same
 		ResolveCollisions();
@@ -1057,36 +1063,39 @@ void DX11PhysicsFramework::Draw()
 	
 	for (auto particle : _particles)
 	{
-		// Get render material
-		Material material = particle->GetAppearance()->GetMaterial();
-
-		// Copy material to shader
-		_cbData.surface.AmbientMtrl = material.ambient;
-		_cbData.surface.DiffuseMtrl = material.diffuse;
-		_cbData.surface.SpecularMtrl = material.specular;
-
-		// Set world matrix
-		_cbData.World = XMMatrixTranspose(particle->GetTransform()->GetWorldMatrix());
-
-		// Set texture
-		if (particle->GetAppearance()->HasTexture())
+		if (particle->GetRenderingBool())
 		{
-			_immediateContext->PSSetShaderResources(0, 1, particle->GetAppearance()->GetTextureRV());
-			_cbData.HasTexture = 1.0f;
-		}
-		else
-		{
-			_cbData.HasTexture = 0.0f;
-		}
+			// Get render material
+			Material material = particle->GetAppearance()->GetMaterial();
 
-		//Write constant buffer data onto GPU
-		D3D11_MAPPED_SUBRESOURCE mappedSubresource;
-		_immediateContext->Map(_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
-		memcpy(mappedSubresource.pData, &_cbData, sizeof(_cbData));
-		_immediateContext->Unmap(_constantBuffer, 0);
+			// Copy material to shader
+			_cbData.surface.AmbientMtrl = material.ambient;
+			_cbData.surface.DiffuseMtrl = material.diffuse;
+			_cbData.surface.SpecularMtrl = material.specular;
 
-		// Draw object
-		particle->GetAppearance()->Draw(_immediateContext);
+			// Set world matrix
+			_cbData.World = XMMatrixTranspose(particle->GetTransform()->GetWorldMatrix());
+
+			// Set texture
+			if (particle->GetAppearance()->HasTexture())
+			{
+				_immediateContext->PSSetShaderResources(0, 1, particle->GetAppearance()->GetTextureRV());
+				_cbData.HasTexture = 1.0f;
+			}
+			else
+			{
+				_cbData.HasTexture = 0.0f;
+			}
+
+			//Write constant buffer data onto GPU
+			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
+			_immediateContext->Map(_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
+			memcpy(mappedSubresource.pData, &_cbData, sizeof(_cbData));
+			_immediateContext->Unmap(_constantBuffer, 0);
+
+			// Draw object
+			particle->GetAppearance()->Draw(_immediateContext);
+		}
 	}
 
 	//
@@ -1095,7 +1104,7 @@ void DX11PhysicsFramework::Draw()
 	_swapChain->Present(0, 0);
 }
 
-void DX11PhysicsFramework::PushParticles(std::vector<GameObject>& particles)
+void DX11PhysicsFramework::PushParticles(std::vector<Particle>& particles)
 {
 	for (size_t i = 0; i < particles.size(); i++)
 	{

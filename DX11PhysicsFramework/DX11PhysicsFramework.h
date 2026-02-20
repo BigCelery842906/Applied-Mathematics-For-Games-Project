@@ -10,6 +10,7 @@
 #include "GameObject.h"
 #include "Timer.h"
 #include "BoxCollider.h"
+#include "ParticleModel.h"
 #include "SphereCollider.h"
 #include "PlaneCollider.h"
 
@@ -77,10 +78,11 @@ private:
 
     int currentSelectedGameobject = 0;
     int numOfCubes = 4;
-    int gameObjectsToCheck = 9;
+    int gameObjectsToCheck = 10;
     float tolerance = 0.001f;
     
-    vector<GameObject*> _particles;
+    ParticleModel* _particleEmitter = nullptr;
+    vector<Particle*> _particles;
 
 private:
     HRESULT CreateWindowHandle(HINSTANCE hInstance, int nCmdShow);
@@ -101,5 +103,5 @@ public:
     void ResolveCollisions();
     void Draw();
     
-    void PushParticles(vector<GameObject>& particles);
+    void PushParticles(vector<Particle>& particles);
 };

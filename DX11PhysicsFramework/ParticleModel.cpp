@@ -1,9 +1,9 @@
 ﻿#include "ParticleModel.h"
+#include "GameObject.h"
 
 #include <algorithm>
-#include <ctime>
 
-#include "GameObject.h"
+#include "DX11PhysicsFramework.h"
 
 ParticleModel::ParticleModel(Transform* transform, Appearance* particleAppearance, DX11PhysicsFramework* particlePush, float resetTime, Vector3 pertubation, bool applyGravity, bool invertGravity) : PhysicsModel(transform)
 {
@@ -24,39 +24,48 @@ void ParticleModel::Reset()
 	_particles.clear();
 	curParticleCount = 0;
 	emissionAccumulator = 0.0f;
-	_aliveTime = 0.0f;
 }
 
 void ParticleModel::Update(float deltaTime)
 {
-    emissionAccumulator += deltaTime * emissionRate;
+    PhysicsModel::Update(deltaTime);
     
-    while (emissionAccumulator >= 1.0f)
+    if (currentlySpawning)
     {
-        EmitParticle();
-        emissionAccumulator -= 1.0f;
-    }
+        emissionAccumulator += deltaTime * emissionRate;
     
-    // PARTICLE UPDATE
-    
-    for (auto& particle : _particles)
-    {
-        // particle.lifeTime -= deltaTime;
-        
-        // if (particle.lifeTime <= 0.0f)
+        while (emissionAccumulator >= 1.0f)
         {
-            //Kill particle
-			// std::remove_if combined with erase to remove dead particles
-			// beginning of vector, end of vector, function that returns true if particle is dead
-            // https://www.geeksforgeeks.org/cpp/std-remove-if-algorithm-in-cpp-stl/
-            //_particles.erase
+            EmitParticle();
+            emissionAccumulator -= 1.0f;
         }
-    }
+    }    
 }
 
 void ParticleModel::EmitParticle()
 {
-   
+    if (curParticleCount < maxNumOfParticles)
+    {
+        for (auto& particle: _particles)
+        {
+            if (!particle.GetRenderingBool())
+            {
+                // In case the emitter has moved locations
+                Vector3 spawnLocation = _transform->GetPosition();
+                particle.GetTransform()->SetPosition(spawnLocation);
+                particle.SetSpawnLocation(spawnLocation);
+    
+                Vector3 randomDirection = RandomVectorInRange(_pertubation);
+                randomDirection.Normalize();
+                particle.GetPhysicsModel()->SetForceApply(false);
+                particle.GetPhysicsModel()->SetVelocity(randomDirection * initialParticleSpeed);
+        
+                particle.SetRenderingBool(true);
+                curParticleCount++;
+                break;
+            }
+        }
+    }
 }
 
 Vector3 ParticleModel::RandomVectorInRange(const Vector3& range)
@@ -72,13 +81,16 @@ void ParticleModel::SpawnParticles(DX11PhysicsFramework* particlePush)
 {
     for (int i = 0; i < maxNumOfParticles; i++)
     {
-        GameObject particle("Particle", _appearance);
-        particle.GetTransform()->SetPosition(_transform->GetPosition());
+        Particle particle(this, _appearance, _resetTime);
+        Vector3 spawnLocation = _transform->GetPosition();
+        particle.GetTransform()->SetPosition(spawnLocation);
+        particle.SetSpawnLocation(spawnLocation);
+        particle.GetTransform()->SetScale(_transform->GetScale() * 0.5);
         
-        Vector3 randomDirection = RandomVectorInRange(_pertubation);
-        randomDirection.Normalize();
         particle.GetPhysicsModel()->SetForceApply(false);
-        particle.GetPhysicsModel()->SetVelocity(randomDirection * initialParticleSpeed);
+        particle.GetPhysicsModel()->SetVelocity(Vector3());
+        
+        particle.SetRenderingBool(false);
         if (_applyGravity)
         {
             if (_invertGravity)
@@ -94,13 +106,35 @@ void ParticleModel::SpawnParticles(DX11PhysicsFramework* particlePush)
         {
             particle.GetPhysicsModel()->SetAcceleration(Vector3());
         }
-        //
-        // particle.lifeTime = _resetTime;
-        // particle.maxLifeTime = _resetTime;
 
-        // Move the locally-created particle into the vector
         _particles.push_back(std::move(particle));
     }
 
+    // Push the particles back into the dx11 framework so they can be added to the draw call 
     particlePush->PushParticles(_particles);
+}
+
+void Particle::Update(float deltaTime)
+{
+    if (isCurrentlyRendering)
+    {
+        GameObject::Update(deltaTime);
+        _lifeTime += deltaTime;
+        if (_lifeTime > _maxLifeTime)
+        {
+            ResetParticle();
+            _particleParent->DecrementParticleCount();
+        }
+    }
+}
+
+void Particle::ResetParticle()
+{
+    isCurrentlyRendering = false;
+    GetTransform()->SetPosition(_spawnLocation);
+    _lifeTime = 0.0f;
+    GetPhysicsModel()->SetForceApply(false);
+    GetPhysicsModel()->SetVelocity(Vector3());
+    GetPhysicsModel()->SetAcceleration(Vector3());
+    
 }
