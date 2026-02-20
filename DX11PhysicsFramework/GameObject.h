@@ -33,5 +33,7 @@ public:
 	
 	void SetParent(GameObject * parent) { _parent = parent; }
 	GameObject* GetParent() { return _parent; }
+	
+	void ResetObject();
 };
 

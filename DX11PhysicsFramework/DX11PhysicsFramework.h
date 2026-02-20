@@ -104,4 +104,5 @@ public:
     void Draw();
     
     void PushParticles(vector<Particle>& particles);
+    void ResetAllObjects();
 };

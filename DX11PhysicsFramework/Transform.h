@@ -9,6 +9,7 @@ class GameObject;
 class Transform
 {
 private:
+    Vector3 _spawnPosition;
     Vector3 _position;
     Quaternion _orientation;
     Vector3 _scale;
@@ -23,7 +24,10 @@ public:
     void SetPosition(Vector3 position) { _position = position; }
     void SetPosition(float x, float y, float z) { _position.x = x; _position.y = y; _position.z = z; }
 
+    void SetSpawnAndPosition(Vector3 spawnPosition) { _spawnPosition = spawnPosition; SetPosition(_spawnPosition);}
+    void SetSpawnAndPosition(float x, float y, float z) { _spawnPosition.x = x; _spawnPosition.y = y; _spawnPosition.z = z; SetPosition(_spawnPosition); }
     Vector3 GetPosition() const { return _position; }
+    Vector3 GetSpawnPosition() const { return _spawnPosition; }
 
     //Scale
     void SetScale(Vector3 scale) { _scale = scale; }

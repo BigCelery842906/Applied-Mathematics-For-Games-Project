@@ -526,7 +526,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	Appearance* FloorAppearance = new Appearance(planeGeometry, noSpecMaterial);
 	
 	GameObject* gameObject = new GameObject("Floor", FloorAppearance, 0.0f);
-	gameObject->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+	gameObject->GetTransform()->SetSpawnAndPosition(0.0f, 0.0f, 0.0f);
 	gameObject->GetTransform()->SetScale(15.0f, 15.0f, 15.0f);
 	gameObject->GetTransform()->SetRotation(90.0f,0,0);
 	gameObject->GetAppearance()->SetTextureRV(_GroundTextureRV);
@@ -541,7 +541,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	{
 		gameObject = new GameObject("Cube " + i, CubeAppearance, i);
 		gameObject->GetTransform()->SetScale(1,1,1);
-		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 1.0f, 10.0f);
+		gameObject->GetTransform()->SetSpawnAndPosition(-2.0f + (i * 2.5f), 1.0f, 10.0f);
 		gameObject->GetTransform()->SetRotation(0.0f,0,0);
 		gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 		gameObject->GetPhysicsModel()->simulateGravity(true);
@@ -555,7 +555,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	{
 		gameObject = new GameObject("Sphere " + i, SphereAppearance);
 		gameObject->GetTransform()->SetScale(1,1,1);
-		gameObject->GetTransform()->SetPosition(-2.0f + (i * 2.5f), 10.0f, 8.5f);
+		gameObject->GetTransform()->SetSpawnAndPosition(-2.0f + (i * 2.5f), 10.0f, 8.5f);
 		gameObject->GetTransform()->SetRotation(0.0f,0,0);
 		gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 		gameObject->GetPhysicsModel()->simulateGravity(true);
@@ -567,7 +567,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	Appearance* donutAppearance = new Appearance(herculesGeometry, shinyMaterial);
 	gameObject = new GameObject("Donut", donutAppearance);
 	gameObject->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-	gameObject->GetTransform()->SetPosition(-5.0f, 0.5f, 10.0f);
+	gameObject->GetTransform()->SetSpawnAndPosition(-5.0f, 0.5f, 10.0f);
 	gameObject->GetAppearance()->SetTextureRV(_StoneTextureRV);
 	gameObject->GetPhysicsModel()->simulateGravity(true);
 	collider = new BoxCollider(gameObject->GetTransform(), Vector3 (1, 0.25, 1));
@@ -582,7 +582,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	
 	GameObject* particleEmitter = new GameObject("Particle Emitter", particleEmitterAppearance);
 	particleEmitter->GetTransform()->SetScale(0.5f, 0.5f, 0.5f);
-	particleEmitter->GetTransform()->SetPosition(-2.5f, 0.5f, 15.0f);
+	particleEmitter->GetTransform()->SetSpawnAndPosition(-2.5f, 0.5f, 15.0f);
 	ParticleModel* particleModel = new ParticleModel(particleEmitter->GetTransform(), particleAppearance, this, 2.0f, Vector3(0.5,0.5,0.5), false);
 	particleEmitter->SetPhysicsModel(particleModel);
 	_particleEmitter = particleModel;
@@ -733,10 +733,19 @@ void DX11PhysicsFramework::Update()
 			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, -50, 0));;
 		}
 		
+		if (GetAsyncKeyState('R'))
+		{
+			_gameObjects[currentSelectedGameobject+1]->ResetObject();
+		}
+	if (GetAsyncKeyState('T'))
+	{
+		ResetAllObjects();
+	}
 		if (GetAsyncKeyState('L'))
 		{
 			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddRelativeForce(Vector3(5,5,0), Vector3(1,0,-1));		
 		}
+		
 	
 	if (GetAsyncKeyState('P') & 0x0001)
 	{
@@ -1114,3 +1123,15 @@ void DX11PhysicsFramework::PushParticles(std::vector<Particle>& particles)
 	DebugPrintF("Pushed Particles");
 }
 		
+
+void DX11PhysicsFramework::ResetAllObjects()
+{
+	for (auto& gameObject: _gameObjects)
+	{
+		gameObject->ResetObject();
+	}
+	for (auto& particle: _particles)
+	{
+		particle->ResetParticle();
+	}
+}
