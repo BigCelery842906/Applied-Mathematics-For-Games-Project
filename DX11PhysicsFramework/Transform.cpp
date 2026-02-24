@@ -40,5 +40,3 @@ void Transform::Update(float dt)
         XMStoreFloat4x4(&_world, this->GetWorldMatrix() * _parentGO->GetWorldMatrix());
     }
 }
-
-

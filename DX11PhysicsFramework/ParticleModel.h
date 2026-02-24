@@ -9,6 +9,7 @@
 class DX11PhysicsFramework;
 class Particle;
 
+// Particle Emitter
 class ParticleModel : public PhysicsModel
 {
 private:
@@ -48,7 +49,7 @@ public:
     void ToggleParticleSpawn() {currentlySpawning = !currentlySpawning;};
 };
 
-
+// Actual Particles
 class Particle : public GameObject
 {
 private:

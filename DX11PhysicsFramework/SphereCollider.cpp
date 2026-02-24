@@ -30,4 +30,3 @@ bool SphereCollider::CollidesWith(PlaneCollider& other, Vector3& poc)
 {
     return other.CollidesWith(*this, poc);
 }
-    

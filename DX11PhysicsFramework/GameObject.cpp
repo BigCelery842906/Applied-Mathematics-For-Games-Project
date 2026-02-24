@@ -40,5 +40,4 @@ void GameObject::ResetObject()
 	_localTransform->SetPosition(_localTransform->GetSpawnPosition());
 	_PhysicsModel->SetAcceleration(Vector3());
 	_PhysicsModel->SetVelocity(Vector3());
-	
 }

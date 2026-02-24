@@ -523,6 +523,8 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	noSpecMaterial.diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	noSpecMaterial.specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 
+#pragma region Spawning Objects
+	// FLOOR
 	Appearance* FloorAppearance = new Appearance(planeGeometry, noSpecMaterial);
 	
 	GameObject* gameObject = new GameObject("Floor", FloorAppearance, 0.0f);
@@ -536,6 +538,8 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 
 	_gameObjects.push_back(gameObject);
 
+	
+	// CUBES
 	Appearance* CubeAppearance = new Appearance(cubeGeometry, shinyMaterial);
 	for (auto i = 1; i < numOfCubes+1; i++)
 	{
@@ -550,6 +554,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 		_gameObjects.push_back(gameObject);
 	}
 	
+	// SPHERES
 	Appearance* SphereAppearance = new Appearance(sphereGeometry, shinyMaterial);
 	for (auto i = 1; i < numOfCubes+1; i++)
 	{
@@ -564,6 +569,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 		_gameObjects.push_back(gameObject);
 	}
 
+	// DONUT
 	Appearance* donutAppearance = new Appearance(herculesGeometry, shinyMaterial);
 	gameObject = new GameObject("Donut", donutAppearance);
 	gameObject->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
@@ -574,7 +580,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	gameObject->GetPhysicsModel()->SetCollider(collider);
 	_gameObjects.push_back(gameObject);
 	
-	
+	// PARTICLE EMITTER
 	Appearance* particleEmitterAppearance = new Appearance(cubeGeometry, shinyMaterial);
 	particleEmitterAppearance->SetTextureRV(_StoneTextureRV);
 	Appearance* particleAppearance = new Appearance(cubeGeometry, shinyMaterial);
@@ -587,6 +593,9 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	particleEmitter->SetPhysicsModel(particleModel);
 	_particleEmitter = particleModel;
 	_gameObjects.push_back(particleEmitter);
+	
+	//Spawning objects done
+#pragma endregion
 	
 	timer = new Timer();
 	
@@ -660,7 +669,6 @@ void DX11PhysicsFramework::Update()
 		currentSelectedGameobject++;
 		currentSelectedGameobject %= gameObjectsToCheck;
 	}
-#pragma endregion 
 	
 #pragma region Cubes
 	if (GetAsyncKeyState('1'))
@@ -705,77 +713,79 @@ void DX11PhysicsFramework::Update()
 	{
 		currentSelectedGameobject = 8;
 	}
+#pragma endregion 
+	
 #pragma endregion
 	
-	
-		if (GetAsyncKeyState('W'))
-		{
-			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 0, 5));
-		}
-		if (GetAsyncKeyState('S'))
-		{
-			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 0, -5));
-		}
-		if (GetAsyncKeyState('A'))
-		{
-			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(-5, 0, 0));
-		}
-		if (GetAsyncKeyState('D'))
-		{
-			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(5, 0, 0));
-		}
-		if (GetAsyncKeyState(VK_SPACE))
-		{
-			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 50, 0));;
-		}
-		if (GetAsyncKeyState(VK_CONTROL))
-		{
-			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, -50, 0));;
-		}
+	if (GetAsyncKeyState('W'))
+	{
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 0, 5));
+	}
+	if (GetAsyncKeyState('S'))
+	{
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 0, -5));
+	}
+	if (GetAsyncKeyState('A'))
+	{
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(-5, 0, 0));
+	}
+	if (GetAsyncKeyState('D'))
+	{
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(5, 0, 0));
+	}
+	if (GetAsyncKeyState(VK_SPACE))
+	{
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, 50, 0));;
+	}
+	if (GetAsyncKeyState(VK_CONTROL))
+	{
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddForce(Vector3(0, -50, 0));;
+	}
 		
-		if (GetAsyncKeyState('R'))
-		{
-			_gameObjects[currentSelectedGameobject+1]->ResetObject();
-		}
+	if (GetAsyncKeyState('R'))
+	{
+		_gameObjects[currentSelectedGameobject+1]->ResetObject();
+	}
+	
 	if (GetAsyncKeyState('T'))
 	{
 		ResetAllObjects();
 	}
-		if (GetAsyncKeyState('L'))
-		{
-			_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddRelativeForce(Vector3(5,5,0), Vector3(1,0,-1));		
-		}
+	
+	if (GetAsyncKeyState('L'))
+	{ // APPLY TORQUE TO OBJECTS - NONFUNCTIONAL - JUST ADDS DIAGONAL FORCE
+		_gameObjects[currentSelectedGameobject+1]->GetPhysicsModel()->AddRelativeForce(Vector3(5,5,0), Vector3(1,0,-1));		
+	}
 		
 	
 	if (GetAsyncKeyState('P') & 0x0001)
 	{
 		_particleEmitter->ToggleParticleSpawn();
 	}
-		// MAYBE TODO: ADD INCREASE/DECREASE FOR MOVEMENT SPEED
 	
-		// Update camera
-		float angleAroundZ = XMConvertToRadians(_cameraOrbitAngleXZ);
+	// Update camera
+	float angleAroundZ = XMConvertToRadians(_cameraOrbitAngleXZ);
 
-		float x = _cameraOrbitRadius * cos(angleAroundZ);
-		float z = _cameraOrbitRadius * sin(angleAroundZ);
+	float x = _cameraOrbitRadius * cos(angleAroundZ);
+	float z = _cameraOrbitRadius * sin(angleAroundZ);
 
-		XMFLOAT3 cameraPos = _camera->GetPosition();
-		cameraPos.x = x;
-		cameraPos.z = z;
+	XMFLOAT3 cameraPos = _camera->GetPosition();
+	cameraPos.x = x;
+	cameraPos.z = z;
 
-		_camera->SetPosition(cameraPos);
-		_camera->Update();
+	_camera->SetPosition(cameraPos);
+	_camera->Update();
 
-		// Update objects
-		for (auto gameObject : _gameObjects)
-		{
-			gameObject->Update(deltaTime);
-		}
+	// Update objects
+	for (auto gameObject : _gameObjects)
+	{
+		gameObject->Update(deltaTime);
+	}
 	
-		for (auto particle : _particles)
-		{
-			particle->Update(deltaTime);
-		}
+	for (auto particle : _particles)
+	{
+		particle->Update(deltaTime);
+	}
 	
 	
 	//Timestep
@@ -1070,6 +1080,7 @@ void DX11PhysicsFramework::Draw()
 	
 	for (auto particle : _particles)
 	{
+		// if particle should be rendering
 		if (particle->GetRenderingBool())
 		{
 			// Get render material
@@ -1113,6 +1124,7 @@ void DX11PhysicsFramework::Draw()
 
 void DX11PhysicsFramework::PushParticles(std::vector<Particle>& particles)
 {
+	//Push particles back to vector so they can be drawn
 	for (size_t i = 0; i < particles.size(); i++)
 	{
 		_particles.push_back(&particles[i]);

@@ -1,5 +1,6 @@
 ﻿#include "PlaneCollider.h"
 
+// THIS IS NOT IMPLEMENTED AS A WHOLE - NO PLANE COLLIDER USED ANYWHERE
 bool PlaneCollider::CollidesWith(SphereCollider& other, Vector3& poc)
 {
     return false;

@@ -13,8 +13,8 @@ ParticleModel::ParticleModel(Transform* transform, Appearance* particleAppearanc
     _invertGravity = invertGravity;
     _appearance = particleAppearance;
 
+    // Spawn all particles now to avoid expensive instantiations during the rest of runtime
 	_particles.reserve(maxNumOfParticles); // Reserve space for all potential particles
-    
     SpawnParticles(particlePush);
 }
 
@@ -116,7 +116,7 @@ void ParticleModel::SpawnParticles(DX11PhysicsFramework* particlePush)
 
 void Particle::Update(float deltaTime)
 {
-    if (isCurrentlyRendering)
+    if (isCurrentlyRendering) // Only call if the particle is in use
     {
         GameObject::Update(deltaTime);
         _lifeTime += deltaTime;
@@ -130,6 +130,7 @@ void Particle::Update(float deltaTime)
 
 void Particle::ResetParticle()
 {
+    // Reset this particle back to the emitter and stop drawing it
     isCurrentlyRendering = false;
     GetTransform()->SetPosition(_spawnLocation);
     _lifeTime = 0.0f;

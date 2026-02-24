@@ -8,6 +8,7 @@ class PlaneCollider : public Collider
 private:
     Vector3 _colliderSize;
 public:
+    // NO PLANE COLLIDER LOGIC - NOT USING ANY PLANE COLLIDERS
     PlaneCollider(Transform* transform, Vector3 ColliderSize) : Collider(transform, TypePlaneCollider) { _colliderSize = ColliderSize; }
 
     virtual bool CollidesWith(Collider& other, Vector3& poc) override { return other.CollidesWith(*this, poc); }

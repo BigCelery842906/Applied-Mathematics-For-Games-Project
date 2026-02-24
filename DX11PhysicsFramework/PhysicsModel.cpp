@@ -49,42 +49,31 @@ Vector3 PhysicsModel::GravityForce()
 
 Vector3 PhysicsModel::DragForce()
 {
-    // TODO CHECK WHETHER THIS IS CORRECT
     // Equation on sheet is this:
     // F(n) = 1/2 * p * v^2 * C(n) * A;
-    //Which returns a float
+    // Which returns a float
     // return  0.5 * _density * (_velocity * _velocity) * _dragCoefficient * _crossSectionalArea;
     
     //Create a copy of velocity
     Vector3 velocity = _velocity;
     
-    // //Negating
-    // velocity *= -1;
-    // //Normalising to get direction
-    // velocity.Normalize();
-    // // velocity.x *= velocity.x;
-    // // velocity.y *= velocity.y;
-    // // velocity.z *= velocity.z;
-    //
-    // //Multiply by scalar
-    // velocity *= _dragCoefficient * _crossSectionalArea * _density * 0.5;
-    
     float floatValues = _density * _dragCoefficient * _crossSectionalArea * -1;
     velocity = Vector3 (velocity.x * floatValues, velocity.y * floatValues, velocity.z * floatValues);
     
-    //return value
+    // return what the drag is to be added to the net force
     return velocity;
 }
 
 Vector3 PhysicsModel::FrictionForce()
 {
     // F(f) = u(k) * F(n);
-    float u = 1.5; // Frictional Coefficient according to sam - Changes depending on surfaces involved
+    float u = 1.5; // Frictional Coefficient
     return u * DragForce();
 }
 
 Vector3 PhysicsModel::GetColliderSize()
 {
+    // This is actually redundant, due to the sphere AABB mishap, not removing because it would require a large refactor I don't have the time for
     if (_collider)
     {
         switch (_collider->GetColliderType())
@@ -126,7 +115,7 @@ void PhysicsModel::ApplyImpulse(Vector3 impulse)
 float PhysicsModel::GetInverseMass() const
 {
     if (_mass == 0)
-    {
+    { // Catch 0 divide error
         return 0;
     }
     return 1.0f / _mass;
