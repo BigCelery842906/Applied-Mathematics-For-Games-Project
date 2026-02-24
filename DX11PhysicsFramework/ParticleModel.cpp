@@ -57,7 +57,7 @@ void ParticleModel::EmitParticle()
     
                 Vector3 randomDirection = RandomVectorInRange(_pertubation);
                 randomDirection.Normalize();
-                particle.GetPhysicsModel()->SetForceApply(false);
+                particle.GetPhysicsModel()->SetForceApply(true);
                 particle.GetPhysicsModel()->SetVelocity(randomDirection * initialParticleSpeed);
         
                 particle.SetRenderingBool(true);

@@ -872,7 +872,7 @@ void DX11PhysicsFramework::ResolveCollisions()
 					float overlapDepth = (radius1 + radius2) - (diff).Magnitude(); // positive when overlapping
 					minOverlap = overlapDepth;
 				}
-				else if (!sphereColliderA ^ !sphereColliderB)
+				else if (!sphereColliderA ^ !sphereColliderB) // XOR - if only one is true
 				{
 					// Identify sphere and box
 					SphereCollider* sphere;
@@ -882,13 +882,13 @@ void DX11PhysicsFramework::ResolveCollisions()
 					if (sphereColliderA)
 					{
 						sphere = sphereColliderA;
-						box = static_cast<BoxCollider*>(objectB->GetCollider());
+						box = dynamic_cast<BoxCollider*>(objectB->GetCollider());
 						sphereIsA = true;
 					}
 					else
 					{
 						sphere = sphereColliderB;
-						box = static_cast<BoxCollider*>(objectA->GetCollider());
+						box = dynamic_cast<BoxCollider*>(objectA->GetCollider());
 						sphereIsA = false;
 					}
 
@@ -908,7 +908,7 @@ void DX11PhysicsFramework::ResolveCollisions()
 
 					if (distance == 0.0f)
 					{
-						// Sphere center is inside the box → push out along largest axis
+						// Sphere center is inside the box -> push out along largest axis
 						Vector3 boxToSphere = spherePos - boxPos;
 
 						float px = halfExtents.x - abs(boxToSphere.x);
@@ -934,7 +934,7 @@ void DX11PhysicsFramework::ResolveCollisions()
 						collisionNormal = -collisionNormal;
 				}
 				else if (!sphereColliderA && !sphereColliderB)
-				{ // NEITHER ARE SPHERES ( AKA BOX BOX)
+				{ // NEITHER ARE SPHERES (AKA BOX BOX)
 					Vector3 objectAColliderSize = objectA->GetColliderSize();
 					Vector3 objectBColliderSize = objectB->GetColliderSize();
 
@@ -965,14 +965,12 @@ void DX11PhysicsFramework::ResolveCollisions()
 					default: break;
 					}
 				}
+				// Positional correction
+				float correctionMag = minOverlap / combinedInverseMass;
+				Vector3 correction = collisionNormal * correctionMag;
 
-				
-					// Positional correction
-					float correctionMag = minOverlap / combinedInverseMass;
-					Vector3 correction = collisionNormal * correctionMag;
-
-					objectATransform->SetPosition(posA + correction * inverseMassA);
-					objectBTransform->SetPosition(posB - correction * inverseMassB);				
+				objectATransform->SetPosition(posA + correction * inverseMassA);
+				objectBTransform->SetPosition(posB - correction * inverseMassB);				
 				
 				// Relative velocity along normala 
 				float relVelAlongNormal = collisionNormal * relativeVelocity;

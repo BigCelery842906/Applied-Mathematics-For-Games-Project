@@ -14,7 +14,7 @@ class ParticleModel : public PhysicsModel
 private:
     float emissionRate = 50.0f;
     float emissionAccumulator = 0.0f;
-    float initialParticleSpeed = 1.0f;
+    float initialParticleSpeed = 5.0f;
     float _resetTime = 0;
     float _aliveTime = 0;
     
