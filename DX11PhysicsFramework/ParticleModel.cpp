@@ -57,7 +57,22 @@ void ParticleModel::EmitParticle()
     
                 Vector3 randomDirection = RandomVectorInRange(_pertubation);
                 randomDirection.Normalize();
-                particle.GetPhysicsModel()->SetForceApply(true);
+                particle.GetPhysicsModel()->SetForceApply(false);
+                if (_applyGravity)
+                {
+                    if (_invertGravity)
+                    {
+                        particle.GetPhysicsModel()->SetAcceleration(-GravityForce());
+                    }
+                    else
+                    {
+                        particle.GetPhysicsModel()->SetAcceleration(GravityForce());
+                    }
+                }
+                else
+                {
+                    particle.GetPhysicsModel()->SetAcceleration(Vector3());
+                }
                 particle.GetPhysicsModel()->SetVelocity(randomDirection * initialParticleSpeed);
         
                 particle.SetRenderingBool(true);
@@ -119,6 +134,9 @@ void Particle::Update(float deltaTime)
     if (isCurrentlyRendering) // Only call if the particle is in use
     {
         GameObject::Update(deltaTime);
+
+        GetTransform()->SetRotation(GetTransform()->GetRotation() + rotation);
+        
         _lifeTime += deltaTime;
         if (_lifeTime > _maxLifeTime)
         {

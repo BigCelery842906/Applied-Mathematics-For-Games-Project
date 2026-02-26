@@ -59,6 +59,10 @@ private:
     float _lifeTime = 0.0f;
     bool isCurrentlyRendering = false;
 
+    Vector3 rotation = Vector3(((float)rand() / RAND_MAX - 0.5f) * 10 -5,
+        ((float)rand() / RAND_MAX - 0.5f) * 5 -2.5f,
+        ((float)rand() / RAND_MAX - 0.5f) * 4 -2);
+
 public:
     // GameObject(string type, Appearance* _appearance, float mass = 1.0f);
     Particle(ParticleModel* parentModel, Appearance* appearance, float maxLifeTime = 5.0f) : GameObject("Particle", appearance) {_particleParent = parentModel; isCurrentlyRendering = false;};

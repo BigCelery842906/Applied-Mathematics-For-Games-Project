@@ -583,7 +583,7 @@ HRESULT DX11PhysicsFramework::InitRunTimeData()
 	// PARTICLE EMITTER
 	Appearance* particleEmitterAppearance = new Appearance(cubeGeometry, shinyMaterial);
 	particleEmitterAppearance->SetTextureRV(_StoneTextureRV);
-	Appearance* particleAppearance = new Appearance(cubeGeometry, shinyMaterial);
+	Appearance* particleAppearance = new Appearance(herculesGeometry, shinyMaterial);
 	particleAppearance->SetTextureRV(_StoneTextureRV);
 	
 	GameObject* particleEmitter = new GameObject("Particle Emitter", particleEmitterAppearance);
